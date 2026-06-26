@@ -29,6 +29,7 @@
         :user-id="userId"
         :user-name="userName"
         :if-master="ifMaster"
+        :editor-type="editorTypeRef"
         @edit="handleEdit"
         @delete="handleDelete"
         @comment="handleComment"
@@ -133,6 +134,7 @@ const displayMsg = computed(() => {
   return {
     type: editorTypeRef.value,
     content: article.value.content,
+    title: article.value.title,
   };
 });
 

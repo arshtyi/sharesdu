@@ -1,56 +1,51 @@
 <template>
     <div class="container">
         <transition name="editor-fade" mode="out-in">
-            <html-editor 
-                v-if="data.type=='html'" 
+            <html-editor
+                v-if="displayData.type === 'html'"
                 :key="'html'"
-                ref="htmlEditorRef" 
-                :init-data="data" 
+                ref="htmlEditorRef"
+                :init-data="displayData"
                 :type="'preview'"
-            ></html-editor>
-            <div v-else-if="data.type==='md'" :key="'md'" class="md-container">
-                <MdPreview :id="mdId" :modelValue="data.content" style="border: none;"/>
-        </div>
+            />
+            <div v-else-if="displayData.type === 'md'" :key="'md'" class="md-container">
+                <MdPreview :id="mdId" :modelValue="displayData.content" style="border: none;" />
+            </div>
         </transition>
     </div>
 </template>
+
 <script setup>
+import { ref, watch } from 'vue';
 import { MdPreview } from 'md-editor-v3';
 import 'md-editor-v3/lib/preview.css';
-const mdId = 'preview-only';
-</script>
-<script>
 import HtmlEditor from './HtmlEditor.vue';
 import { copy } from '@/utils/other';
-export default {
-    name: 'ArticleDisplay', 
-    props: {
-        initData: {
-            type: Object,
-            default: () => {
-                return {
-                    type: null,//md/html
-                    content: null,
-                }
-            }
-        }
+
+const mdId = 'preview-only';
+
+const props = defineProps({
+    initData: {
+        type: Object,
+        default: () => ({
+            type: null,
+            content: null,
+            title: '',
+        }),
     },
-    components: { 
-        HtmlEditor,
-     },
-    data(){
-        return{
-            data:{
-            },
-        }
+});
+
+const displayData = ref(copy(props.initData));
+
+watch(
+    () => props.initData,
+    (value) => {
+        displayData.value = copy(value);
     },
-    methods:{
-    },
-    mounted(){
-        this.data=copy(this.initData);
-    }
-}
+    { deep: true },
+);
 </script>
+
 <style scoped>
 @media screen and (min-width: 1000px) {
     .container {
@@ -63,8 +58,8 @@ export default {
         width: 100%;
         overflow-y: auto;
     }
-    .md-container{
-        padding:10px;
+    .md-container {
+        padding: 10px;
     }
 }
 
@@ -73,36 +68,34 @@ export default {
         width: 100vw;
         background-color: #ffffff;
     }
-    .displayer{
+    .displayer {
         width: 100%;
         overflow-y: auto;
     }
-    .md-container{
-        padding:5px;
+    .md-container {
+        padding: 5px;
     }
 }
 
-/* 编辑器切换过渡动画 */
 .editor-fade-enter-active {
-  transition: opacity 0.2s ease-in;
+    transition: opacity 0.2s ease-in;
 }
 
 .editor-fade-leave-active {
-  transition: opacity 0.15s ease-out;
+    transition: opacity 0.15s ease-out;
 }
 
 .editor-fade-enter-from,
 .editor-fade-leave-to {
-  opacity: 0;
+    opacity: 0;
 }
 
 .editor-fade-enter-to,
 .editor-fade-leave-from {
-  opacity: 1;
+    opacity: 1;
 }
 
-/* 强制设置 md-editor-code-head 的 z-index 为正常值 */
 :deep(.md-editor-code-head) {
-  z-index: auto !important;
+    z-index: auto !important;
 }
 </style>

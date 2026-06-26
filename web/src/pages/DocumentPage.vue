@@ -44,6 +44,7 @@ export default {
             doc = route.params['name'];
         }
         this.docName = doc;
+        this.data.title = doc;
         doc+='.md';
         try {
             const response = await fetch('/doc/'+doc);
