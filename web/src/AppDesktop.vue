@@ -1,6 +1,6 @@
 <!-- src/AppDesktop.vue - PC 端版本 -->
 <template>
-  <v-app style="display: flex;height: 100vh;flex-direction: column;">
+  <v-app class="desktop-app">
     <submit-loading-view :init-data="loadMsg"></submit-loading-view>
     <global-message :alert-msg="alertMsg" @close="closeMessage"></global-message>
     <div v-if="this.ifShowNav" class="nav-bar" :style="{ 'background-color': navColor }">
@@ -100,7 +100,7 @@
     </div>
     <div
       id="router-view-container"
-      :style="{ 'width': '100vw', 'max-width': '100vw', 'margin-top': routerMarginTop, background: '#ffffff', 'margin-bottom': '10px', 'flex': 1, 'min-height': 0, 'overflow-y': 'auto', position: 'relative' }">
+      :style="{ 'width': '100%', 'max-width': '100%', 'margin-top': routerMarginTop, background: '#ffffff', 'margin-bottom': '10px', 'flex': 1, 'min-height': 0, 'overflow-y': 'auto', 'overflow-x': 'hidden', position: 'relative' }">
       <router-view id="router-view" :key="$route.fullPath" class="router-view" @alert="alert" @set_loading="setLoading"
         @search_type_changed="handleSearchTypeChanged" />
     </div>
@@ -357,6 +357,13 @@ export default {
 };
 </script>
 <style scoped>
+.desktop-app {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
 .icon-container {
   display: flex;
   flex-direction: column;
@@ -368,18 +375,22 @@ export default {
 .nav-bar {
   z-index: 99;
   position: fixed;
+  left: 0;
+  right: 0;
   width: 100%;
   height: fit-content;
   display: flex;
   flex-direction: row;
   padding: 5px;
+  box-sizing: border-box;
   max-height: 45px;
   background-color: var(--theme-color);
 }
 
 .router-view {
-  width: 100vw;
-  max-width: 100vw;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   background-color: white;
 }
 </style>
