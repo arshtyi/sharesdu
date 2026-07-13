@@ -2,65 +2,33 @@
 
 ## Web CI (`web-ci.yml`)
 
-Runs on pull requests and pushes to `main` when files under `web/` change.
+### Pull Request
 
-- Installs dependencies with `npm ci`
-- Builds production bundle with `vue-cli-service build`
-- Uploads `web/dist` as a short-lived workflow artifact (7 days)
+- `npm ci` + `vue-cli-service build` 校验构建
+
+### Push to `main`
+
+- 构建 Docker 镜像并推送到 GHCR：
+  - `ghcr.io/w1412x/sharesdu-web:latest`
+  - `ghcr.io/w1412x/sharesdu-web:sha-<short>`
 
 ## Web Release (`web-release.yml`)
 
-Builds a Docker image from `web/Dockerfile` and publishes it to **GitHub Container Registry (GHCR)**.
+在推送 tag `web-v*` 或手动触发时，发布带版本号的镜像：
 
-Image: `ghcr.io/w1412x/sharesdu-web`
+- `ghcr.io/w1412x/sharesdu-web:<version>`
+- `ghcr.io/w1412x/sharesdu-web:latest`
 
-### Trigger by tag (recommended)
+## 服务器部署
 
-```bash
-git tag web-v0.1.1
-git push origin web-v0.1.1
-```
+服务器上的自动上线脚本、systemd 服务、证书续期等运维配置不在本仓库维护，请在服务器本地管理。
 
-Tag format must start with `web-v`.
-
-### Trigger manually
-
-1. Open **Actions → Web Release → Run workflow**
-2. Enter version without prefix, e.g. `0.1.1`
-
-### Pull and run on another server
+拉取镜像示例：
 
 ```bash
-docker pull ghcr.io/w1412x/sharesdu-web:0.1.1
-docker run -d --name sharesdu-web -p 80:80 ghcr.io/w1412x/sharesdu-web:0.1.1
+docker pull ghcr.io/w1412x/sharesdu-web:latest
 ```
 
-With HTTPS (mount certs at runtime):
+若其他机器无法免登录拉取，将 Package 设为 **Public**：
 
-```bash
-docker run -d --name sharesdu-web \
-  -p 80:80 -p 443:443 \
-  -v /path/to/cert.pem:/etc/ssl/certs/cert.pem:ro \
-  -v /path/to/privkey.pem:/etc/ssl/private/privkey.pem:ro \
-  -v /path/to/chain.pem:/etc/ssl/certs/chain.pem:ro \
-  ghcr.io/w1412x/sharesdu-web:0.1.1
-```
-
-Or from the repo:
-
-```bash
-cd web
-docker compose up -d
-```
-
-### Make the image public (first time)
-
-If other servers cannot pull without login:
-
-1. GitHub → **Packages** → `sharesdu-web`
-2. **Package settings** → **Change visibility** → **Public**
-
-### TLS behavior
-
-- **No certs mounted**: nginx serves HTTP on port 80 only.
-- **Certs mounted** to `/etc/ssl/certs/cert.pem` and `/etc/ssl/private/privkey.pem`: HTTPS config is enabled (HTTP redirects to HTTPS).
+GitHub → **Packages** → `sharesdu-web` → **Package settings** → **Change visibility**
