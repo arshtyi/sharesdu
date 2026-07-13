@@ -1,0 +1,13 @@
+services:
+  web:
+    image: ghcr.io/w1412x/sharesdu-web:latest
+    container_name: sharesdu-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Optional: mount TLS certs to enable HTTPS (see nginx.conf)
+      - ./certs/cert.pem:/etc/ssl/certs/cert.pem:ro
+      - ./certs/privkey.pem:/etc/ssl/private/privkey.pem:ro
+      - ./certs/chain.pem:/etc/ssl/certs/chain.pem:ro

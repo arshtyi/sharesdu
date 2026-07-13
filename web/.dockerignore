@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+.nyc_output
+cypress/videos
+cypress/screenshots
+tests/e2e/videos
+tests/e2e/screenshots
+.git
+.gitignore
+.env.local
+.env.*.local
+*.md
+certs
