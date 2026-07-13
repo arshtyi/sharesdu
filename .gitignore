@@ -2,6 +2,8 @@
 node_modules
 /dist
 
+# Server-side deployment scripts (kept only on the server)
+deploy/
 
 # local env files
 .env.local

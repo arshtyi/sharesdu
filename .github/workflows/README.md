@@ -19,15 +19,13 @@
 - `ghcr.io/w1412x/sharesdu-web:<version>`
 - `ghcr.io/w1412x/sharesdu-web:latest`
 
-## 服务器部署
+## 服务器自动上线
 
-服务器上的自动上线脚本、systemd 服务、证书续期等运维配置不在本仓库维护，请在服务器本地管理。
+服务器上的 `auto_online.sh`、systemd unit、证书续期脚本等部署代码**不纳入本仓库**，仅保留在服务器（如 `/root/auto_online/`）。
 
-拉取镜像示例：
+自动上线流程：服务器检测 `origin/main` 新提交 → `docker pull ghcr.io/w1412x/sharesdu-web` → 重启容器。
 
-```bash
-docker pull ghcr.io/w1412x/sharesdu-web:latest
-```
+## 首次使用 GHCR
 
 若其他机器无法免登录拉取，将 Package 设为 **Public**：
 
