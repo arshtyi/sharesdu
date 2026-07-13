@@ -17,18 +17,18 @@ export function useMobileNav(page, deviceType, loadState) {
   
   // 是否显示底部导航
   const ifShowBottomNav = computed(() => {
-    return ['SelfPage', 'IndexPage', 'SearchPage', 'ServicePage'].includes(page.value) && deviceType.value == 'mobile';
+    return ['SelfPage', 'IndexPage', 'SearchPage', 'ServicePage', 'AgentPage'].includes(page.value) && deviceType.value == 'mobile';
   });
   
   // 路由下边距
   const routerMarginBottom = computed(() => {
-    return ifShowBottomNav.value ? '50px' : '10px';
+    return ifShowBottomNav.value ? 'calc(60px + env(safe-area-inset-bottom))' : '10px';
   });
   const themeColor = globalProperties.$themeColor;
   
   // 是否显示导航栏
   const ifShowNav = computed(() => {
-    if (loadState.value && ['WelcomePage', 'LoginPage', 'ChatPage', 'DocumentPage', 'DeveloperPage', 'DevPage', 'BannedPage', undefined, null].includes(page.value)) {
+    if (page.value === 'AgentPage' || (loadState.value && ['WelcomePage', 'LoginPage', 'ChatPage', 'DocumentPage', 'DeveloperPage', 'DevPage', 'BannedPage', undefined, null].includes(page.value))) {
       return false;
     } else {
       return true;
@@ -103,4 +103,3 @@ export function useMobileNav(page, deviceType, loadState) {
     ifCanSearchInputSuggestion,
   };
 }
-

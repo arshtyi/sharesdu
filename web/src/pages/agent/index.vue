@@ -11,36 +11,53 @@
       <div class="sidebar-header">
         <span class="sidebar-title">对话</span>
         <v-btn
+          aria-label="新建对话"
           icon="mdi-plus"
           variant="text"
           size="small"
           :color="themeColor"
+          :disabled="loading"
           @click="startNewChat"
+        />
+      </div>
+      <div class="sidebar-search">
+        <v-text-field
+          v-model="sessionSearch"
+          aria-label="搜索本地对话"
+          placeholder="搜索对话"
+          prepend-inner-icon="mdi-magnify"
+          density="compact"
+          variant="outlined"
+          hide-details
+          clearable
         />
       </div>
       <div class="sidebar-list">
         <div
-          v-for="s in sessions"
+          v-for="s in filteredSessions"
           :key="s.id"
           class="sidebar-item"
-          :class="{ 'sidebar-item--active': currentSessionId === s.id }"
-          @click="selectSession(s.id)"
+          :class="{
+            'sidebar-item--active': currentSessionId === s.id,
+            'sidebar-item--disabled': loading,
+          }"
+          @click="!loading && selectSession(s.id)"
         >
           <span class="sidebar-item-title">{{ s.title || '新对话' }}</span>
           <span class="sidebar-item-time">{{ formatSessionTime(s.updated_at) }}</span>
-          <v-btn
-            v-if="currentSessionId === s.id"
-            icon="mdi-close"
-            variant="text"
-            size="x-small"
-            class="sidebar-item-delete"
-            @click.stop="deleteSession(s.id)"
-          />
+          <div v-if="currentSessionId === s.id" class="sidebar-item-actions">
+            <v-btn aria-label="重命名此对话" icon="mdi-pencil-outline" variant="text" size="x-small" :disabled="loading" @click.stop="openRenameDialog(s)" />
+            <v-btn aria-label="删除此对话" icon="mdi-close" variant="text" size="x-small" :disabled="loading" @click.stop="deleteSession(s.id)" />
+          </div>
         </div>
+        <div v-if="!filteredSessions.length" class="sidebar-empty">没有匹配的本地对话</div>
       </div>
       <div class="sidebar-footer">
-        <span class="sidebar-footer-hint">聊天记录保存在本地</span>
+        <span class="sidebar-footer-hint">{{ storageHint }}</span>
+        <v-btn aria-label="导出全部对话" icon="mdi-download" variant="text" size="small" color="grey" @click="exportChats" />
+        <v-btn aria-label="删除全部对话" icon="mdi-delete-outline" variant="text" size="small" color="grey" :disabled="loading || !sessions.length" @click="requestDeleteAll" />
         <v-btn
+          aria-label="打开 Agent 设置"
           icon="mdi-cog-outline"
           variant="text"
           size="small"
@@ -53,17 +70,42 @@
     <AgentConfigDialog
       v-model="showAgentConfigDialog"
       :config="agentCfg"
-      title="Agent 模型配置（本地存储）"
-      description="网站不提供 Key；请自行填写。配置仅保存在浏览器本地（LocalStorage）。"
+      title="Agent 模型配置"
+      description="网站不提供 Key；你可以选择仅在本次会话保存，或由浏览器持久保存。"
       @save="saveAgentCfg"
       @reset="resetAgentCfg"
     />
+    <v-dialog v-model="confirmDialog" max-width="420">
+      <v-card class="confirm-card">
+        <v-card-title>{{ pendingAction?.title }}</v-card-title>
+        <v-card-text>{{ pendingAction?.description }}</v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="confirmDialog = false">取消</v-btn>
+          <v-btn color="error" variant="flat" @click="runConfirmedAction">确认</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="renameDialog" max-width="420">
+      <v-card class="confirm-card">
+        <v-card-title>重命名对话</v-card-title>
+        <v-card-text>
+          <v-text-field v-model="renameDraft" label="对话名称" :maxlength="TITLE_MAX" variant="outlined" autofocus @keydown.enter.prevent="saveRename" />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" @click="renameDialog = false">取消</v-btn>
+          <v-btn :color="themeColor" variant="flat" :disabled="!renameDraft.trim()" @click="saveRename">保存</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <div v-if="isMobile && sidebarOpen" class="sidebar-overlay" @click="sidebarOpen = false" />
     <div class="agent-main">
       <div class="agent-shell">
         <div class="agent-top" :class="{ 'agent-top--mobile': isMobile }">
           <v-btn
             v-if="isMobile"
+            aria-label="打开会话列表"
             icon="mdi-menu"
             variant="text"
             :color="themeColor"
@@ -76,6 +118,7 @@
             color="grey"
             :prepend-icon="'mdi-plus'"
             size="small"
+            :disabled="loading"
             @click="startNewChat"
           >
             {{ '新对话' }}
@@ -85,23 +128,21 @@
             color="grey"
             :prepend-icon="'mdi-broom'"
             size="small"
-            @click="clearChat"
+            :disabled="loading"
+            @click="requestClearChat"
           >
             {{ '清空' }}
           </v-btn>
         </div>
 
-      <v-alert
+      <div
         v-if="!configOk"
-        type="warning"
-        variant="tonal"
-        class="mb-3 agent-config-alert"
+        class="agent-config-alert"
+        role="status"
       >
-        未配置 Agent 模型参数或 API Key。点击右侧按钮直接打开配置弹窗即可完成设置。
-        <template #append>
-          <v-btn variant="text" :color="themeColor" @click="showAgentConfigDialog = true">去配置</v-btn>
-        </template>
-      </v-alert>
+        <span><strong>首次使用：</strong>配置模型与 API Key 后即可开始提问。</span>
+        <v-btn size="small" variant="tonal" :color="themeColor" @click="showAgentConfigDialog = true">去配置</v-btn>
+      </div>
 
       <div id="agent-message-container" class="message-container" :class="{ 'message-container--mobile': isMobile }">
         <div
@@ -203,6 +244,8 @@
             class="editor-input"
             :placeholder="configOk ? '输入你的问题…' : '请先点击上方「去配置」按钮'"
             :disabled="loading || !configOk"
+            aria-label="向 Agent 提问"
+            @keydown.enter.exact.prevent="send"
             hide-details
           />
           <v-btn
@@ -233,7 +276,7 @@
 
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
-import { getDeviceType } from '@/utils/device';
+import { useDevice } from '@/app/composables';
 import {
   getAgentLLMConfig,
   setAgentLLMConfig,
@@ -252,7 +295,11 @@ import {
   addMessage,
   updateMessageContent,
   updateSessionState,
+  renameSession,
   deleteSession as deleteSessionDb,
+  clearSession as clearSessionDb,
+  deleteAllSessions,
+  exportAgentData,
   DEFAULT_TITLE,
   TITLE_MAX,
 } from './agentChatDb';
@@ -265,16 +312,23 @@ const LAST_SESSION_KEY = 'agent.lastSessionId';
 
 defineOptions({ name: 'AgentPage' });
 
-const isMobile = computed(() => getDeviceType() === 'mobile');
+const { ifMobile: isMobile } = useDevice();
 const emit = defineEmits(['alert', 'set_loading']);
 
 const themeColor = ref('#9c0c13');
 const mdReady = ref(false);
 const sessions = ref([]);
+const sessionSearch = ref('');
 const currentSessionId = ref(null);
 const sidebarOpen = ref(false);
 const loadingSessions = ref(false);
 const showAgentConfigDialog = ref(false);
+const confirmDialog = ref(false);
+const pendingAction = ref(null);
+const renameDialog = ref(false);
+const renameDraft = ref('');
+const renameSessionId = ref(null);
+const storageHint = ref('聊天记录保存在本地');
 const agentCfg = ref({ ...getAgentLLMConfig() });
 const currentSessionState = ref(AgentSessionState.from());
 
@@ -292,6 +346,11 @@ let abortController = null;
 
 const cfg = ref(getAgentLLMConfig());
 const configOk = computed(() => validateAgentLLMConfig(cfg.value).ok);
+const filteredSessions = computed(() => {
+  const query = sessionSearch.value.trim().toLocaleLowerCase();
+  if (!query) return sessions.value;
+  return sessions.value.filter((session) => String(session.title || '').toLocaleLowerCase().includes(query));
+});
 
 const userAvatarData = computed(() => ({
   id: getCookie('userId') || '',
@@ -407,11 +466,14 @@ async function refreshSessionOrderAfterTurn() {
   sessions.value = next;
 }
 
+let loadSessionRequestId = 0;
 async function loadSession(sessionId) {
+  const requestId = ++loadSessionRequestId;
   const [session, list] = await Promise.all([
     getSession(sessionId),
     getMessages(sessionId),
   ]);
+  if (requestId !== loadSessionRequestId) return;
   messages.value = list.length
     ? list.map((r) => ({ id: `m_${r.id}`, role: r.role, content: r.content || '' }))
     : [welcomeMessage()];
@@ -421,12 +483,14 @@ async function loadSession(sessionId) {
 }
 
 function selectSession(sessionId) {
+  if (loading.value) return;
   if (currentSessionId.value === sessionId) return;
   loadSession(sessionId);
   selfDefineLocalStorage.setItem(LAST_SESSION_KEY, String(sessionId));
 }
 
 async function startNewChat() {
+  if (loading.value) return;
   const title = DEFAULT_TITLE;
   const id = await createSession(title);
   await loadSessions();
@@ -437,7 +501,7 @@ async function startNewChat() {
   if (isMobile.value) sidebarOpen.value = false;
 }
 
-async function deleteSession(sessionId) {
+async function performDeleteSession(sessionId) {
   await deleteSessionDb(sessionId);
   await loadSessions();
   if (currentSessionId.value === sessionId) {
@@ -448,10 +512,55 @@ async function deleteSession(sessionId) {
   }
 }
 
+function deleteSession(sessionId) {
+  if (loading.value) return;
+  pendingAction.value = {
+    type: 'delete-session',
+    sessionId,
+    title: '删除这次对话？',
+    description: '此操作会同时删除本地保存的消息与 Agent 记忆。',
+  };
+  confirmDialog.value = true;
+}
+
 const saveAgentCfg = (next) => {
   agentCfg.value = setAgentLLMConfig(next);
   cfg.value = getAgentLLMConfig();
   showAgentConfigDialog.value = false;
+};
+
+const openRenameDialog = (session) => {
+  renameSessionId.value = session.id;
+  renameDraft.value = session.title || DEFAULT_TITLE;
+  renameDialog.value = true;
+};
+
+const saveRename = async () => {
+  const title = renameDraft.value.trim();
+  if (!title || !renameSessionId.value) return;
+  await renameSession(renameSessionId.value, title);
+  renameDialog.value = false;
+  await loadSessions();
+};
+
+const exportChats = async () => {
+  const data = await exportAgentData();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `sharesdu-agent-${new Date().toISOString().slice(0, 10)}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
+const requestDeleteAll = () => {
+  pendingAction.value = {
+    type: 'delete-all',
+    title: '删除全部本地对话？',
+    description: '全部 Agent 消息与会话记忆都会从此浏览器删除。',
+  };
+  confirmDialog.value = true;
 };
 
 const resetAgentCfg = () => {
@@ -460,7 +569,9 @@ const resetAgentCfg = () => {
   cfg.value = getAgentLLMConfig();
 };
 
-const clearChat = () => {
+const performClearChat = async () => {
+  if (currentSessionId.value) await clearSessionDb(currentSessionId.value);
+  currentSessionState.value = AgentSessionState.from();
   messages.value = [
     {
       id: `m_${Date.now()}`,
@@ -468,6 +579,33 @@ const clearChat = () => {
       content: '已清空对话。你可以继续提问（仅支持信息获取）。',
     },
   ];
+  await refreshSessionOrderAfterTurn();
+};
+
+const requestClearChat = () => {
+  pendingAction.value = {
+    type: 'clear-chat',
+    title: '清空当前对话？',
+    description: '将删除当前会话的全部本地消息，并重置 Agent 记忆。',
+  };
+  confirmDialog.value = true;
+};
+
+const runConfirmedAction = async () => {
+  const action = pendingAction.value;
+  confirmDialog.value = false;
+  pendingAction.value = null;
+  if (action?.type === 'delete-session') await performDeleteSession(action.sessionId);
+  if (action?.type === 'clear-chat') await performClearChat();
+  if (action?.type === 'delete-all') {
+    await deleteAllSessions();
+    loadSessionRequestId += 1;
+    sessions.value = [];
+    currentSessionId.value = null;
+    currentSessionState.value = AgentSessionState.from();
+    messages.value = [welcomeMessage()];
+    selfDefineLocalStorage.removeItem(LAST_SESSION_KEY);
+  }
 };
 
 const cancel = () => {
@@ -499,12 +637,14 @@ const send = async () => {
   const noteLimit = Number(cfg.value.memoryNotesLimit);
   currentSessionState.value.bumpNotes(`user: ${text.slice(0, 80)}`, Number.isFinite(noteLimit) ? noteLimit : 10);
 
-  const userMsg = { id: `u_${Date.now()}`, role: 'user', content: text };
-  messages.value.push(userMsg);
-
+  // Runtime receives the current user text separately. Build history before
+  // rendering this turn so the same user message is not sent to the model twice.
   const history = messages.value
     .filter((m) => m.role === 'user' || m.role === 'assistant')
     .map((m) => ({ role: m.role, content: m.content || '' }));
+
+  const userMsg = { id: `u_${Date.now()}`, role: 'user', content: text };
+  messages.value.push(userMsg);
 
   const assistantDbId = await addMessage(currentSessionId.value, 'assistant', '');
   const assistantMsg = reactive({
@@ -528,6 +668,8 @@ const send = async () => {
     scrollToBottom();
 
   let pendingToolCalls = 0;
+  let streamRound = null;
+  let multiBranch = false;
   const proc = assistantMsg.process;
 
   const setSummary = (text) => {
@@ -554,6 +696,7 @@ const send = async () => {
           }
         } else if (e?.type === 'plan_ready') {
           const plan = e.plan || {};
+          multiBranch = Number(plan.intent_count) > 1;
           const title = plan.objective || '检索计划';
           setSummary(`形成计划：${title}`);
           const planNode = newProcNode({ type: 'plan', title: `计划：${title}`, status: 'done', meta: plan.domain || '' });
@@ -597,6 +740,13 @@ const send = async () => {
           });
           (proc.currentRound || proc.currentAgent || proc.root).children.push(llmNode);
           proc.currentLLMCall = llmNode;
+        } else if (e?.type === 'llm_content_delta' && !multiBranch) {
+          if (streamRound !== e.round) {
+            streamRound = e.round;
+            assistantMsg.content = '';
+          }
+          assistantMsg.content += e.content || '';
+          scrollToBottom();
         } else if (e?.type === 'llm_tool_calls') {
           pendingToolCalls = e.count || 0;
           setSummary(`决定调用工具（${pendingToolCalls}）…`);
@@ -811,6 +961,12 @@ onMounted(async () => {
     await loadSession(sessions.value[0].id);
   }
   scrollToBottom();
+  if (navigator.storage?.estimate) {
+    const estimate = await navigator.storage.estimate().catch(() => null);
+    if (estimate?.usage != null && estimate?.quota) {
+      storageHint.value = `本地存储 ${(estimate.usage / 1048576).toFixed(1)} / ${(estimate.quota / 1048576).toFixed(0)} MiB`;
+    }
+  }
 });
 </script>
 
@@ -885,6 +1041,10 @@ onMounted(async () => {
   padding: 8px 0;
 }
 
+.sidebar-search {
+  padding: 8px 10px 4px;
+}
+
 .sidebar-list::-webkit-scrollbar,
 .message-container::-webkit-scrollbar {
   width: 1px;
@@ -928,7 +1088,7 @@ onMounted(async () => {
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 100%;
-  padding-right: 24px;
+  padding-right: 56px;
 }
 
 .sidebar-item-time {
@@ -937,11 +1097,24 @@ onMounted(async () => {
   margin-top: 2px;
 }
 
-.sidebar-item-delete {
+.sidebar-item-actions {
   position: absolute;
   right: 4px;
   top: 50%;
   transform: translateY(-50%);
+  display: flex;
+}
+
+.sidebar-item--disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.sidebar-empty {
+  padding: 24px 14px;
+  color: var(--color-text-muted);
+  text-align: center;
+  font-size: var(--font-size-small);
 }
 
 .sidebar-footer {
@@ -986,7 +1159,8 @@ onMounted(async () => {
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  width: 100%;
+  width: min(100%, 1120px);
+  margin: 0 auto;
   padding: 14px;
   box-sizing: border-box;
   overflow: hidden;
@@ -1013,7 +1187,19 @@ onMounted(async () => {
 }
 
 .agent-config-alert {
-  margin-top: 8px;
+  margin: 4px auto 8px;
+  width: min(100%, 880px);
+  min-height: 44px;
+  padding: 7px 8px 7px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--color-warning);
+  background: #fff8eb;
+  border: 1px solid #f5d49b;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-small);
 }
 
 .message-container {
@@ -1033,7 +1219,9 @@ onMounted(async () => {
 }
 
 .message-row {
-  width: 100%;
+  width: min(100%, 880px);
+  margin-left: auto;
+  margin-right: auto;
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -1066,7 +1254,7 @@ onMounted(async () => {
 }
 
 .message-bubble {
-  max-width: 80%;
+  max-width: min(80%, var(--reading-width));
   padding: 10px 12px;
   border-radius: 14px;
 }
@@ -1221,6 +1409,8 @@ onMounted(async () => {
   flex-direction: row;
   gap: 10px;
   align-items: flex-end;
+  width: min(100%, 880px);
+  margin: 0 auto;
 }
 
 .editor-input :deep(textarea) {
@@ -1280,6 +1470,9 @@ onMounted(async () => {
   }
   .message-bubble {
     max-width: 92%;
+  }
+  .agent-config-alert {
+    align-items: flex-start;
   }
   .send-btn {
     min-width: 70px;

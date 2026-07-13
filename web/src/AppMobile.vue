@@ -1,6 +1,7 @@
 <!-- src/AppMobile.vue - 移动端版本 -->
 <template>
   <v-app style="display: flex;height: 100vh;flex-direction: column;">
+    <a class="skip-link" href="#router-view">跳到主要内容</a>
     <!-- 启动画面 -->
     <splash-screen :show="showSplash"></splash-screen>
     <submit-loading-view :init-data="loadMsg"></submit-loading-view>
@@ -9,12 +10,12 @@
     <div v-if="isSpecialPage && ifShowNav" class="nav-bar special-nav-bar" :style="{ 'background-color': navColor }">
       <!-- 返回按钮 -->
       <div v-if="!showSpecialSearchInput" class="nav-btn-container">
-        <v-btn @click="goBack" icon="mdi-chevron-left" variant="text" :color="navIconColor" size="35">
+        <v-btn aria-label="返回上一页" @click="goBack" icon="mdi-chevron-left" variant="text" :color="navIconColor" size="35">
           <div class="icon-container">
             <v-icon type="mdi" icon="mdi-chevron-left" :color="navIconColor" size="25"></v-icon>
           </div>
         </v-btn>
-        <v-btn @click="toHomePage" style="margin-left: 10px;" icon="mdi-home" variant="text" :color="navIconColor" size="35">
+        <v-btn aria-label="返回首页" @click="toHomePage" style="margin-left: 10px;" icon="mdi-home" variant="text" :color="navIconColor" size="35">
           <div class="icon-container">
             <v-icon type="mdi" icon="mdi-home" :color="navIconColor" size="25"></v-icon>
           </div>
@@ -29,7 +30,7 @@
         :inputStyle="{ 'font-color': navIconColor, 'border-radius': '20px', height: '35px', width: '60vw', 'padding-left': '15px' }"></search-input>
       <!-- 搜索按钮 -->
       <div class="nav-btn-container">
-        <v-btn @click="handleSpecialSearchClick" icon="mdi-magnify" variant="text" :color="navIconColor" size="35">
+        <v-btn aria-label="搜索" @click="handleSpecialSearchClick" icon="mdi-magnify" variant="text" :color="navIconColor" size="35">
           <div class="icon-container">
             <v-icon type="mdi" icon="mdi-magnify" :color="navIconColor" size="25"></v-icon>
           </div>
@@ -38,7 +39,7 @@
       <v-spacer v-if="showSpecialSearchInput"></v-spacer>
       <!-- 更多按钮 -->
       <div v-show="!showSpecialSearchInput" class="nav-btn-container">
-        <v-btn icon="mdi-dots-vertical" variant="text" :color="navIconColor" @click="openBottomActionMenu" size="35">
+        <v-btn aria-label="更多操作" icon="mdi-dots-vertical" variant="text" :color="navIconColor" @click="openBottomActionMenu" size="35">
           <div class="icon-container">
             <v-icon type="mdi" icon="mdi-dots-vertical" :color="navIconColor" size="25"></v-icon>
           </div>
@@ -49,7 +50,7 @@
     <!-- 普通页面导航栏 -->
     <div v-else-if="ifShowNav" class="nav-bar" :style="{ 'background-color': navColor }">
       <div v-show="!mobileIfShowSearchInput" class="search-btn-container">
-        <v-btn @click="openCreateSheet" icon="mdi-plus" variant="text" :color="navIconColor" size="35">
+        <v-btn aria-label="创建内容" @click="openCreateSheet" icon="mdi-plus" variant="text" :color="navIconColor" size="35">
           <div class="icon-container">
             <v-icon type="mdi" icon="mdi-plus" :color="navIconColor" size="25"></v-icon>
           </div>
@@ -62,14 +63,14 @@
         @blur="handleDetailPageSearchBlur"
         :inputStyle="{ 'font-color': navIconColor, 'border-radius': '20px', height: '35px', width: '60vw', 'padding-left': '15px' }"></search-input>
       <div v-show="mobileIfShowSearchInput" class="search-btn-container">
-        <v-btn id="search-btn" @click="search" icon="mdi-magnify" variant="text" :color="navIconColor" size="35">
+        <v-btn id="search-btn" aria-label="搜索" @click="search" icon="mdi-magnify" variant="text" :color="navIconColor" size="35">
           <div class="icon-container">
             <v-icon type="mdi" icon="mdi-magnify" :color="navIconColor" size="25"></v-icon>
           </div>
         </v-btn>
       </div>
       <v-spacer></v-spacer>
-      <v-btn v-if="ifShowHomeBtn && !ifShowBottomNav && mobileIfShowSearchInput" @click="toHomePage" icon="mdi-home" variant="text" size="38"
+      <v-btn v-if="ifShowHomeBtn && !ifShowBottomNav && mobileIfShowSearchInput" aria-label="返回首页" @click="toHomePage" icon="mdi-home" variant="text" size="38"
         :color="navIconColor">
         <div class="icon-container">
           <v-icon type="mdi" icon="mdi-home" :color="navIconColor" size="25"></v-icon>
@@ -77,7 +78,7 @@
         <v-tooltip activator="parent">返回首页</v-tooltip>
       </v-btn>
       <div v-show="!mobileIfShowSearchInput" class="search-btn-container">
-        <v-btn id="search-btn" @click="search" icon="mdi-magnify" variant="text" :color="navIconColor" size="35">
+        <v-btn id="search-btn" aria-label="搜索" @click="search" icon="mdi-magnify" variant="text" :color="navIconColor" size="35">
           <div class="icon-container">
             <v-icon type="mdi" icon="mdi-magnify" :color="navIconColor" size="25"></v-icon>
           </div>
@@ -85,28 +86,28 @@
       </div>
     </div>
     <div
-      id="router-view-container"
+      id="router-view-container" tabindex="-1"
       :style="{ 'width': '100vw', 'max-width': '100vw', 'margin-top': routerMarginTop, background: '#ffffff', 'margin-bottom': routerMarginBottom, 'flex': 1, 'min-height': 0, 'overflow-y': 'auto', position: 'relative' }">
-      <router-view id="router-view" :key="$route.fullPath" class="router-view" @alert="alert" @set_loading="setLoading"
+      <router-view id="router-view" :key="`${String($route.name)}:${JSON.stringify($route.params)}`" class="router-view" @alert="alert" @set_loading="setLoading"
         @search_type_changed="handleSearchTypeChanged" />
     </div>
-    <div v-if="ifShowBottomNav" class="bottom-nav-container">
+    <nav v-if="ifShowBottomNav" class="bottom-nav-container" aria-label="主导航">
       <v-spacer />
-      <v-btn @click="openUrl('#/index')" variant="text" icon="mdi-home" :color="themeColor" size="40" :class="{ 'bottom-nav-btn--active': isIndexActive }" class="bottom-nav-btn" :style="isIndexActive ? { backgroundColor: activeBgColor } : {}"></v-btn>
+      <v-btn aria-label="首页" :aria-current="isIndexActive ? 'page' : undefined" @click="openUrl('#/index')" variant="text" :color="themeColor" :class="{ 'bottom-nav-btn--active': isIndexActive }" class="bottom-nav-btn" :style="isIndexActive ? { backgroundColor: activeBgColor } : {}"><v-icon icon="mdi-home" size="22" /><span>首页</span></v-btn>
       <v-spacer />
-      <v-btn @click="openUrl('#/agent')" icon="mdi-robot-outline" variant="text" :color="themeColor" size="40" :class="{ 'bottom-nav-btn--active': isAgentActive }" class="bottom-nav-btn" :style="isAgentActive ? { backgroundColor: activeBgColor } : {}"></v-btn>
+      <v-btn aria-label="AI 问答" :aria-current="isAgentActive ? 'page' : undefined" @click="openUrl('#/agent')" variant="text" :color="themeColor" :class="{ 'bottom-nav-btn--active': isAgentActive }" class="bottom-nav-btn" :style="isAgentActive ? { backgroundColor: activeBgColor } : {}"><v-icon icon="mdi-robot-outline" size="22" /><span>AI问答</span></v-btn>
       <v-spacer />
-      <v-btn @click="openUrl('#/service')" icon="mdi-view-grid" variant="text" :color="themeColor" size="40" :class="{ 'bottom-nav-btn--active': isServiceActive }" class="bottom-nav-btn" :style="isServiceActive ? { backgroundColor: activeBgColor } : {}"></v-btn>
+      <v-btn aria-label="微服务" :aria-current="isServiceActive ? 'page' : undefined" @click="openUrl('#/service')" variant="text" :color="themeColor" :class="{ 'bottom-nav-btn--active': isServiceActive }" class="bottom-nav-btn" :style="isServiceActive ? { backgroundColor: activeBgColor } : {}"><v-icon icon="mdi-view-grid" size="22" /><span>微服务</span></v-btn>
       <v-spacer />
-      <v-btn @click="openUrl('#/self')" icon="mdi-account" variant="text" :color="themeColor" size="40" :class="{ 'bottom-nav-btn--active': isSelfActive }" class="bottom-nav-btn" :style="isSelfActive ? { backgroundColor: activeBgColor } : {}"></v-btn>
+      <v-btn aria-label="我的" :aria-current="isSelfActive ? 'page' : undefined" @click="openUrl('#/self')" variant="text" :color="themeColor" :class="{ 'bottom-nav-btn--active': isSelfActive }" class="bottom-nav-btn" :style="isSelfActive ? { backgroundColor: activeBgColor } : {}"><v-icon icon="mdi-account" size="22" /><span>我的</span></v-btn>
       <v-spacer />
-    </div>
+    </nav>
     <!-- 创作选择底部弹出 -->
     <v-bottom-sheet v-model="showCreateSheet" class="create-sheet">
       <v-sheet class="create-sheet-content">
         <div class="create-sheet-header">
           <div class="create-sheet-title">选择创作方式</div>
-          <v-btn icon="mdi-close" variant="text" @click="showCreateSheet = false" size="small"></v-btn>
+          <v-btn aria-label="关闭创作方式" icon="mdi-close" variant="text" @click="showCreateSheet = false" size="small"></v-btn>
         </div>
         <div class="create-options">
           <v-card class="create-option-card" @click="handleCreate('post')" variant="text">
@@ -329,14 +330,13 @@ export default {
     };
     
     // 显示启动画面的函数
-    const displaySplash = () => {
+    const displaySplash = async () => {
       showSplash.value = true;
-      
-      // 等待 IndexPage 加载完成后隐藏启动画面
-      // 由于 IndexPage 是异步加载的，延迟隐藏以确保页面已渲染
-      setTimeout(() => {
+      // Only cover the actual route transition; never impose a fixed delay.
+      await nextTick();
+      requestAnimationFrame(() => {
         showSplash.value = false;
-      }, 1500); // 至少显示 1.5 秒，确保用户能看到启动画面
+      });
     };
     
     // 监听路由变化，控制启动画面显示
@@ -552,7 +552,8 @@ export default {
   position: fixed;
   bottom: 0;
   background-color: white;
-  height: 50px;
+  min-height: 60px;
+  padding-bottom: env(safe-area-inset-bottom);
   border-top: #dddddd 1px solid;
   z-index: 99;
 }
@@ -560,6 +561,17 @@ export default {
 .bottom-nav-btn {
   transition: all 0.2s ease;
   opacity: 0.6;
+  min-width: 60px;
+  height: 52px !important;
+  border-radius: var(--radius-md);
+}
+
+.bottom-nav-btn :deep(.v-btn__content) {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 10px;
+  line-height: 1.1;
 }
 
 .bottom-nav-btn:hover {

@@ -2,11 +2,22 @@
  * 暗色模式管理工具
  * 使用 DarkReader 库实现白天/黑夜模式切换
  */
-import {
-  enable as enableDarkReader,
-  disable as disableDarkReader,
-} from 'darkreader';
 import { selfDefineLocalStorage } from './localStorage';
+
+let darkReaderModule;
+let darkReaderPromise;
+
+function loadDarkReader() {
+  if (darkReaderModule) return Promise.resolve(darkReaderModule);
+  if (!darkReaderPromise) {
+    darkReaderPromise = import(/* webpackChunkName: "dark-reader" */ 'darkreader')
+      .then((module) => {
+        darkReaderModule = module;
+        return module;
+      });
+  }
+  return darkReaderPromise;
+}
 
 // localStorage 存储键
 const DARK_MODE_STORAGE_KEY = 'darkModeEnabled';
@@ -79,13 +90,13 @@ function syncDarkModeRootClassFromStorage() {
  * 初始化暗色模式
  * 根据 localStorage 中的设置应用暗色模式
  */
-export function initDarkMode() {
+export async function initDarkMode() {
   const darkModeStatus = selfDefineLocalStorage.getItem(DARK_MODE_STORAGE_KEY) === 'true';
   
   if (darkModeStatus) {
-    enableDarkMode();
+    await enableDarkMode();
   } else {
-    disableDarkMode();
+    document.documentElement.classList.remove('sharesdu-dark-mode');
   }
 
   syncDarkModeRootClassFromStorage();
@@ -95,9 +106,10 @@ export function initDarkMode() {
 /**
  * 启用暗色模式
  */
-export function enableDarkMode() {
+export async function enableDarkMode() {
   try {
-    enableDarkReader(darkReaderOptions, darkReaderDynamicFixes);
+    const { enable } = await loadDarkReader();
+    enable(darkReaderOptions, darkReaderDynamicFixes);
     selfDefineLocalStorage.setItem(DARK_MODE_STORAGE_KEY, 'true');
     syncDarkModeRootClassFromStorage();
     return true;
@@ -112,7 +124,8 @@ export function enableDarkMode() {
  */
 export function disableDarkMode() {
   try {
-    disableDarkReader();
+    // Disabling the default light state must not download Dark Reader.
+    darkReaderModule?.disable();
     selfDefineLocalStorage.setItem(DARK_MODE_STORAGE_KEY, 'false');
     syncDarkModeRootClassFromStorage();
     return true;
@@ -126,15 +139,14 @@ export function disableDarkMode() {
  * 切换暗色模式
  * @returns {Boolean} 切换后的状态（true=暗色模式，false=白天模式）
  */
-export function toggleDarkMode() {
+export async function toggleDarkMode() {
   const currentStatus = selfDefineLocalStorage.getItem(DARK_MODE_STORAGE_KEY) === 'true';
   
   if (currentStatus) {
     disableDarkMode();
     return false;
   } else {
-    enableDarkMode();
-    return true;
+    return enableDarkMode();
   }
 }
 
@@ -150,17 +162,17 @@ export function isDarkModeEnabled() {
  * 设置暗色模式选项
  * @param {Object} options - DarkReader 配置选项
  */
-export function setDarkModeOptions(options) {
+export async function setDarkModeOptions(options) {
   const currentStatus = selfDefineLocalStorage.getItem(DARK_MODE_STORAGE_KEY) === 'true';
   
   if (currentStatus) {
     // 如果当前已启用，先禁用再重新启用以应用新配置
-    disableDarkReader();
-    enableDarkReader({ ...darkReaderOptions, ...options }, darkReaderDynamicFixes);
+    const { disable, enable } = await loadDarkReader();
+    disable();
+    enable({ ...darkReaderOptions, ...options }, darkReaderDynamicFixes);
     syncDarkModeRootClassFromStorage();
   }
   
   // 更新默认选项
   Object.assign(darkReaderOptions, options);
 }
-

@@ -34,7 +34,7 @@ export function csEditArticle(data){
         article_id:data.id,
         article_title:data.title,
         content:head+data.content,
-        tags:tags,
+        tags:data.tags,
         article_type:data.type,
         origin_link:data.originLink,
     }

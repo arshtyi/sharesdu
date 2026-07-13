@@ -1,5 +1,4 @@
 import { getCookie } from '@/utils/cookie';
-import { startDebug } from '@/utils/debug';
 import { selfDefineLocalStorage } from '@/utils/localStorage';
 import { selfDefinedSessionStorage } from '@/utils/sessionStorage';
 import { createRouter, createWebHashHistory } from 'vue-router';
@@ -37,11 +36,6 @@ const originalRoutes = [
   {
     path: '/',
     redirect: '/welcome',
-  },
-  {
-    path:"/test",
-    name:'TestPage',
-    component: TestPage
   },
   {
     path: '/welcome',
@@ -164,12 +158,6 @@ const originalRoutes = [
     meta:{requiresAuth:true}
   },
   {
-    path: '/dev',
-    name: 'DevPage',
-    component: DevPage,
-    meta: { requiresAuth: false },
-  },
-  {
     path: '/service',
     name: 'ServicePage',
     component: ServicePage,
@@ -206,22 +194,46 @@ const originalRoutes = [
   },
 ];
 
-const devRoutes = originalRoutes.map(route => ({
+const developmentOnlyRoutes = process.env.NODE_ENV === 'development' ? [
+  {
+    path: '/test',
+    name: 'TestPage',
+    component: TestPage,
+    meta: { requiresAuth: false },
+  },
+  {
+    path: '/dev',
+    name: 'DevPage',
+    component: DevPage,
+    meta: { requiresAuth: false },
+  },
+] : [];
+
+const devRoutes = process.env.NODE_ENV === 'development' ? originalRoutes.map(route => ({
   ...route,
   path: '/debug' + route.path,
   name: `${route.name}Debug`,
-}));
+})) : [];
 
-const routes = [...originalRoutes, ...devRoutes];
+const routes = [...developmentOnlyRoutes, ...originalRoutes, ...devRoutes];
 
 const router = createRouter({
-  history: createWebHashHistory(process.env.BASE_URL),
+  history: createWebHashHistory(process.env.BASE_URL || '/'),
   routes,
 });
 
+const hasAuthenticatedSession = () => Boolean(
+  getCookie('accessToken') ||
+  getCookie('refreshToken') ||
+  selfDefineLocalStorage.getItem('passwd')
+);
+
 // beforeEach 中逻辑不变
-router.beforeEach((to, from, next) => {
-  if(to.name.endsWith("Debug")&&(!from.name||!from.name.endsWith("Debug"))){
+router.beforeEach(async (to, from, next) => {
+  const toName = String(to.name || '');
+  const fromName = String(from.name || '');
+  if(toName.endsWith("Debug")&&!fromName.endsWith("Debug")){
+    const { startDebug } = await import(/* webpackChunkName: "debug-tools" */ '@/utils/debug');
     startDebug();
     window.alert("本页面处于调试模式");
   }
@@ -243,7 +255,15 @@ router.beforeEach((to, from, next) => {
     console.error(e);
   }
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    next();
+    if (hasAuthenticatedSession()) {
+      next();
+    } else {
+      selfDefineLocalStorage.setItem('lastHref', window.location.href);
+      next({
+        name: toName.endsWith('Debug') ? 'LoginPageDebug' : 'LoginPage',
+        query: { redirect: to.fullPath },
+      });
+    }
   } else if (to.path === "/login"||to.path ==="/debug/login") {
     if (getCookie("refreshToken") || selfDefineLocalStorage.getItem('passwd')) {
       window.alert("您已经登录");

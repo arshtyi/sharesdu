@@ -131,14 +131,24 @@ export const createDomainAgents = () => {
     async run({ client, cfg, history, context, userText, signal, plan, onToolStart, onToolResult, onEvent }) {
       const systemPrompt = `${baseSystem(domain)}${domain === '课程' ? courseEnumNote : ''}${formatPlanBlock(plan)}`;
       const messages = toMessages(history, userText, systemPrompt, context?.memoryMessage);
+      const allowed = new Set(plan?.allowed_tools || []);
+      const constrainedTools = allowed.size
+        ? tools.filter((tool) => allowed.has(tool.function?.name))
+        : tools;
       return await runToolLoop({
         client,
         model: cfg.model,
         temperature: cfg.temperature,
         max_tokens: cfg.maxTokens,
         maxRounds: cfg.maxRounds ?? 20,
+        maxToolCalls: cfg.maxToolCalls,
+        maxTotalTokens: cfg.maxTotalTokens,
+        maxTotalMs: cfg.maxTotalMs,
+        maxToolResultBytes: cfg.maxToolResultBytes,
+        toolTimeoutMs: cfg.toolTimeoutMs,
+        toolConcurrency: cfg.toolConcurrency,
         messages,
-        tools,
+        tools: constrainedTools,
         handlers: SHARES_DU_TOOLSET.handlers,
         signal,
         onToolStart,

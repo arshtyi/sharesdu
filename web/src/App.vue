@@ -20,13 +20,14 @@
   <app-desktop v-else></app-desktop>
 </template>
 <script>
-import { provide, onMounted } from 'vue';
-import PostEditor from '@/components/post/PostEditor.vue';
-import CourseEditor from '@/components/course/CourseEditor.vue';
+import { defineAsyncComponent, provide, onMounted } from 'vue';
 import GlobalNoticeDialog from '@/components/common/GlobalNoticeDialog.vue';
-import AppMobile from './AppMobile.vue';
-import AppDesktop from './AppDesktop.vue';
 import { useDevice, useDialog, useMessage, useGlobalNotice } from './app/composables';
+
+const PostEditor = defineAsyncComponent(() => import('@/components/post/PostEditor.vue'));
+const CourseEditor = defineAsyncComponent(() => import('@/components/course/CourseEditor.vue'));
+const AppMobile = defineAsyncComponent(() => import('./AppMobile.vue'));
+const AppDesktop = defineAsyncComponent(() => import('./AppDesktop.vue'));
 
 export default {
   name: 'App',

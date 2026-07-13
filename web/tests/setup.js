@@ -20,7 +20,12 @@ global.window = Object.create(window);
 Object.defineProperty(window, 'location', {
   value: {
     href: 'http://localhost:8080',
-    origin: 'http://localhost:8080'
+    origin: 'http://localhost:8080',
+    protocol: 'http:',
+    host: 'localhost:8080',
+    pathname: '/',
+    search: '',
+    hash: ''
   },
   writable: true
 });
@@ -30,4 +35,3 @@ Object.defineProperty(document, 'cookie', {
   writable: true,
   value: ''
 });
-

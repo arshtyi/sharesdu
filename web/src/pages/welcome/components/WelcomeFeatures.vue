@@ -1,6 +1,6 @@
 <template>
   <div :class="cardClass">
-    <div class="section-title-small">核心功能</div>
+    <h2 class="section-title-small">核心功能</h2>
     <div class="features-grid">
       <div class="feature-item">
         <v-icon color="primary" size="40">mdi-book-open-variant</v-icon>
@@ -193,4 +193,3 @@ defineProps({
   }
 }
 </style>
-

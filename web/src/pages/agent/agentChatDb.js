@@ -96,6 +96,13 @@ export async function updateSession(sessionId, patch) {
   await db[SESSIONS].update(sessionId, next);
 }
 
+export async function renameSession(sessionId, title) {
+  await updateSession(sessionId, {
+    title: String(title || '').trim().slice(0, TITLE_MAX) || DEFAULT_TITLE,
+    updated_at: Date.now(),
+  });
+}
+
 export async function updateSessionState(sessionId, patch) {
   const current = await getSessionState(sessionId);
   const next = normalizeAgentState({
@@ -128,6 +135,38 @@ export async function updateMessageContent(messageId, content) {
 export async function deleteSession(sessionId) {
   await db[MESSAGES].where('session_id').equals(sessionId).delete();
   await db[SESSIONS].delete(sessionId);
+}
+
+export async function clearSession(sessionId) {
+  const now = Date.now();
+  await db.transaction('rw', db[MESSAGES], db[SESSIONS], async () => {
+    await db[MESSAGES].where('session_id').equals(sessionId).delete();
+    await db[SESSIONS].update(sessionId, {
+      agent_state: normalizeAgentState(),
+      agent_state_updated_at: now,
+      updated_at: now,
+    });
+  });
+}
+
+export async function deleteAllSessions() {
+  await db.transaction('rw', db[MESSAGES], db[SESSIONS], async () => {
+    await db[MESSAGES].clear();
+    await db[SESSIONS].clear();
+  });
+}
+
+export async function exportAgentData() {
+  const [sessions, messages] = await Promise.all([
+    db[SESSIONS].toArray(),
+    db[MESSAGES].toArray(),
+  ]);
+  return {
+    version: 1,
+    exported_at: new Date().toISOString(),
+    sessions,
+    messages,
+  };
 }
 
 export { DEFAULT_TITLE, TITLE_MAX, DEFAULT_AGENT_STATE, normalizeAgentState };

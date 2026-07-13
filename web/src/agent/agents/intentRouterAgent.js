@@ -27,6 +27,36 @@ const INTENT_ROUTER_SYSTEM = `你是 ShareSdu 站内助手的意图分类器。�
 - 可多选：例如既问选课又问隐私，则 intents 为 ["site_query", "site_docs"]，且若有 site_query 必须带 domain。
 - intents 必须至少包含一项；summary 可选；有 site_query 时 domain 必填且只能为 course|article|post|user|search 之一。`;
 
+export const routeIntentByRule = (userText) => {
+  const text = String(userText || '').trim();
+  if (!text) return null;
+  const intents = [];
+  let domain;
+  if (/(隐私|入站须知|本站|本网站|平台规则|开发者文档|开发指南|开放 ?API|开源|关于我们)/i.test(text)) {
+    intents.push('site_docs');
+  }
+  if (/(上一句|刚才.{0,5}(说|问|答)|上一轮|上一次问|我们聊了什么|对话总结)/.test(text)) {
+    intents.push('site_query');
+    domain = 'search';
+  } else if (/(课程|选课|老师|教师|给分|学分|考核|考试)/.test(text)) {
+    intents.push('site_query');
+    domain = 'course';
+  } else if (/(文章|博客|笔记|学习资料|资源分享)/.test(text)) {
+    intents.push('site_query');
+    domain = 'article';
+  } else if (/(帖子|回帖|回复|讨论|问答)/.test(text)) {
+    intents.push('site_query');
+    domain = 'post';
+  } else if (/(用户|作者|个人主页)/.test(text)) {
+    intents.push('site_query');
+    domain = 'user';
+  }
+  if (!intents.length && /^(请)?(写|作).{0,6}(诗|作文)|^(请)?解.{0,6}(方程|数学题)/.test(text)) {
+    return { intents: ['off_topic'] };
+  }
+  return intents.length ? { intents: [...new Set(intents)], domain } : null;
+};
+
 /**
  * 调用 LLM 做意图识别，返回 { intents, summary? }
  * @param {{ client: { createChatCompletion }, cfg: object, userText: string, history?: array, signal?: AbortSignal }} opts
@@ -34,6 +64,13 @@ const INTENT_ROUTER_SYSTEM = `你是 ShareSdu 站内助手的意图分类器。�
  */
 export const runIntentRouter = async ({ client, cfg, userText, history = [], signal, onEvent }) => {
   onEvent && onEvent({ type: 'intent_router_start', at: Date.now() });
+
+  const fastRoute = routeIntentByRule(userText);
+  if (fastRoute) {
+    onEvent?.({ type: 'intent_router_result', ...fastRoute, fast_path: true, at: Date.now() });
+    onEvent?.({ type: 'intent_router_end', intents: fastRoute.intents, fast_path: true, at: Date.now() });
+    return fastRoute;
+  }
 
   const messages = [
     { role: 'system', content: INTENT_ROUTER_SYSTEM },
@@ -54,7 +91,7 @@ export const runIntentRouter = async ({ client, cfg, userText, history = [], sig
     parsed = parseIntentRouterOutput(content);
   } catch (e) {
     onEvent && onEvent({ type: 'intent_router_end', intents: null, error: e?.message, at: Date.now() });
-    return { intents: ['site_query'], summary: undefined, domain: 'search' };
+    throw e;
   }
 
   if (!parsed) {

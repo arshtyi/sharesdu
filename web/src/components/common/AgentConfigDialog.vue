@@ -11,7 +11,7 @@
         <v-icon icon="mdi-robot-outline" class="mr-2" />
         {{ title }}
         <v-spacer />
-        <v-btn icon="mdi-close" variant="text" size="small" @click="close" />
+        <v-btn aria-label="关闭 Agent 设置" icon="mdi-close" variant="text" size="small" @click="close" />
       </v-card-title>
       <v-card-text>
         <div class="text-small mb-3" style="color: #6b6b6b;">
@@ -20,6 +20,13 @@
         <div class="text-small mb-3" style="color: #8a8a8a;">
           默认值已提高，低频参数收进高级配置。
         </div>
+        <v-radio-group v-model="draft.storageMode" inline label="API Key 保存方式" density="compact">
+          <v-radio label="仅本次会话" value="session" />
+          <v-radio label="浏览器持久保存" value="local" />
+        </v-radio-group>
+        <v-alert type="warning" variant="tonal" density="compact" class="mb-4">
+          你填写的任意自定义 Base URL 都会收到此 API Key。请只使用可信服务地址。
+        </v-alert>
         <v-text-field
           v-model="draft.baseUrl"
           label="Base URL（OpenAI兼容）"
@@ -27,12 +34,14 @@
           variant="outlined"
           placeholder="https://api.openai.com/v1"
         />
-        <v-text-field
+        <v-autocomplete
           v-model="draft.model"
+          :items="modelOptions"
           label="Model"
           density="compact"
           variant="outlined"
           placeholder="gpt-4o"
+          clearable
         />
         <v-text-field
           v-model="draft.apiKey"
@@ -53,6 +62,12 @@
           density="compact"
           color="var(--theme-color)"
         />
+        <div class="connection-row mb-3">
+          <v-btn :loading="testing" variant="outlined" color="var(--theme-color)" @click="testConnection">
+            测试连接与工具调用
+          </v-btn>
+          <span v-if="testMessage" class="text-small" :class="testOk ? 'test-ok' : 'test-error'">{{ testMessage }}</span>
+        </div>
         <v-text-field
           v-model.number="draft.maxRounds"
           label="Max Rounds（工具调用最大轮数）"
@@ -98,6 +113,60 @@
                 :max="AGENT_LLM_LIMITS.maxTokens"
                 hint="默认 32k，适合更长回答或更复杂的工具调用"
                 persistent-hint
+              />
+              <v-text-field
+                v-model.number="draft.maxToolCalls"
+                label="单轮工具调用总数上限"
+                density="compact"
+                variant="outlined"
+                type="number"
+                :min="1"
+                :max="AGENT_LLM_LIMITS.maxToolCalls"
+              />
+              <v-text-field
+                v-model.number="draft.maxTotalTokens"
+                label="总 Token 预算"
+                density="compact"
+                variant="outlined"
+                type="number"
+                :min="512"
+                :max="AGENT_LLM_LIMITS.maxTotalTokens"
+              />
+              <v-text-field
+                v-model.number="draft.maxTotalMs"
+                label="最大总耗时（毫秒）"
+                density="compact"
+                variant="outlined"
+                type="number"
+                :min="10000"
+                :max="AGENT_LLM_LIMITS.maxTotalMs"
+              />
+              <v-text-field
+                v-model.number="draft.maxToolResultBytes"
+                label="工具结果回灌总字节上限"
+                density="compact"
+                variant="outlined"
+                type="number"
+                :min="4096"
+                :max="AGENT_LLM_LIMITS.maxToolResultBytes"
+              />
+              <v-text-field
+                v-model.number="draft.toolTimeoutMs"
+                label="单个工具超时（毫秒）"
+                density="compact"
+                variant="outlined"
+                type="number"
+                :min="1000"
+                :max="AGENT_LLM_LIMITS.toolTimeoutMs"
+              />
+              <v-text-field
+                v-model.number="draft.toolConcurrency"
+                label="工具并发数"
+                density="compact"
+                variant="outlined"
+                type="number"
+                :min="1"
+                :max="AGENT_LLM_LIMITS.toolConcurrency"
               />
               <v-switch
                 v-model="draft.structuredMemory"
@@ -150,7 +219,8 @@
 
 <script setup>
 import { computed, reactive, ref, watch } from 'vue';
-import { AGENT_LLM_LIMITS, getDefaultAgentLLMConfig, normalizeAgentLLMConfig } from '@/agent/config';
+import { AGENT_LLM_LIMITS, getDefaultAgentLLMConfig, normalizeAgentLLMConfig, validateAgentLLMConfig } from '@/agent/config';
+import { createOpenAICompatibleClient } from '@/agent/llm/openaiCompatible';
 
 const props = defineProps({
   modelValue: {
@@ -195,6 +265,10 @@ const visible = computed({
 });
 const showApiKey = ref(false);
 const advancedOpen = ref([]);
+const testing = ref(false);
+const testMessage = ref('');
+const testOk = ref(false);
+const modelOptions = ref([]);
 const draft = reactive({ ...getDefaultAgentLLMConfig() });
 
 const syncDraft = () => {
@@ -236,6 +310,48 @@ const handleReset = () => {
   emit('reset');
 };
 
+const testConnection = async () => {
+  const config = normalizeAgentLLMConfig(draft);
+  const validation = validateAgentLLMConfig(config);
+  if (!validation.ok) {
+    testOk.value = false;
+    testMessage.value = '请先填写 Base URL、Model 和 API Key';
+    return;
+  }
+  testing.value = true;
+  testMessage.value = '';
+  try {
+    const client = createOpenAICompatibleClient(config);
+    const models = await client.listModels();
+    modelOptions.value = models.map((item) => item?.id).filter(Boolean);
+    const response = await client.createChatCompletion({
+      model: config.model,
+      messages: [{ role: 'user', content: '请调用 sharesdu_connection_probe 工具，不要直接回答。' }],
+      tools: [{
+        type: 'function',
+        function: {
+          name: 'sharesdu_connection_probe',
+          description: '连接测试工具',
+          parameters: { type: 'object', properties: {}, additionalProperties: false },
+        },
+      }],
+      tool_choice: 'auto',
+      temperature: 0,
+      max_tokens: 64,
+    });
+    const supportsTools = Boolean(response?.choices?.[0]?.message?.tool_calls?.length);
+    testOk.value = supportsTools;
+    testMessage.value = supportsTools
+      ? `连接正常，支持工具调用；发现 ${modelOptions.value.length} 个模型`
+      : `连接正常，但当前模型未返回工具调用；发现 ${modelOptions.value.length} 个模型`;
+  } catch (error) {
+    testOk.value = false;
+    testMessage.value = `测试失败：${error?.message || 'unknown_error'}`;
+  } finally {
+    testing.value = false;
+  }
+};
+
 const handleGoToAgent = () => {
   emit('go-to-agent');
   close();
@@ -246,4 +362,14 @@ const handleGoToAgent = () => {
 .agent-config-advanced {
   margin-top: 6px;
 }
+
+.connection-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.test-ok { color: var(--color-success); }
+.test-error { color: var(--color-error); }
 </style>

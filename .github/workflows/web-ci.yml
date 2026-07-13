@@ -24,8 +24,7 @@ env:
 
 jobs:
   verify:
-    name: Verify web build
-    if: github.event_name == 'pull_request'
+    name: Verify web quality and bundle budget
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -45,15 +44,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Lint
+        run: npm run lint
+
+      - name: Run unit tests
+        run: npm run test:unit -- --runInBand
+
       - name: Build production bundle
         run: npx vue-cli-service build
         env:
           CI: true
           NODE_ENV: production
 
+      - name: Enforce initial bundle budget
+        run: npm run check:bundle
+
   publish-image:
     name: Publish latest Docker image
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: verify
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -89,6 +98,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           cache-from: type=gha
           cache-to: type=gha,mode=max

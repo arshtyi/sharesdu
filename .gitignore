@@ -4,6 +4,9 @@ node_modules
 
 # Server-side deployment scripts (kept only on the server)
 deploy/
+auto_online.sh
+renew_certs.sh
+auto_online.service
 
 # local env files
 .env.local

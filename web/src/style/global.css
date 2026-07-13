@@ -11,6 +11,31 @@
  */
 
 :root {
+  /* Shared design tokens */
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f7f8fa;
+  --color-text: #1f2937;
+  --color-text-muted: #667085;
+  --color-border: #e5e7eb;
+  --color-success: #2e7d32;
+  --color-warning: #b45309;
+  --color-error: #c62828;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 8px 24px rgba(16, 24, 40, 0.1);
+  --container-width: 1200px;
+  --reading-width: 760px;
+  --control-height: 40px;
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--theme-color, #9c0c13) 28%, transparent);
+
   /* PC 端字体大小（默认，>= 1000px） */
   --font-size-title-big: 24px;
   --font-size-page-title: 22px;
@@ -20,6 +45,33 @@
   --font-size-small: 14px;
   --font-size-tiny: 12px;
   --font-size-min: 10px;
+}
+
+html {
+  color: var(--color-text);
+}
+
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2px solid var(--theme-color, #9c0c13) !important;
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 10001;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  color: #ffffff;
+  background: var(--theme-color, #9c0c13);
+  transform: translateY(-160%);
+  transition: transform 0.15s ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
 }
 
 /* 移动端字体大小（< 1000px） */
@@ -223,6 +275,15 @@ html.sharesdu-dark-mode .v-skeleton-loader__bone::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
     html.sharesdu-dark-mode .v-skeleton-loader__bone::after {
         animation: none !important;
         transform: translateX(0) !important;

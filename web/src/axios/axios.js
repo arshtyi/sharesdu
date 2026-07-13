@@ -253,7 +253,7 @@ class AxiosWithCache {
         return keyParts.join('|');
     }
 
-    _resolveTTL(_url) {
+    _resolveTTL() {
         return this.defaultTTL;
     }
 }

@@ -1,26 +1,19 @@
 <!-- 头像名称组件主入口 - 根据设备类型动态加载 PC 端或移动端组件 -->
 <template>
-    <avatar-name-pc v-if="deviceType === 'desktop'" 
+  <span class="avatar-name-root">
+    <component :is="deviceType === 'desktop' ? AvatarNamePc : AvatarNameMobile"
         :init-data="initData" 
         :size="size" 
         :color="color" 
         :clickable="clickable" 
         :if-show-name="ifShowName" 
         :name-size="nameSize" 
-        :lazy="lazy">
-    </avatar-name-pc>
-    <avatar-name-mobile v-else 
-        :init-data="initData" 
-        :size="size" 
-        :color="color" 
-        :clickable="clickable" 
-        :if-show-name="ifShowName" 
-        :name-size="nameSize" 
-        :lazy="lazy">
-    </avatar-name-mobile>
+        :lazy="lazy"
+    />
+  </span>
 </template>
 <script>
-import { globalProperties } from '@/main';
+import { useDevice } from '@/app/composables/useDevice';
 import AvatarNamePc from './pc.vue';
 import AvatarNameMobile from './mobile.vue';
 
@@ -62,9 +55,11 @@ export default {
         }
     },
     setup() {
-        const deviceType = globalProperties.$deviceType;
+        const { deviceType } = useDevice();
         return {
             deviceType,
+            AvatarNamePc,
+            AvatarNameMobile,
         }
     },
     components: {
@@ -74,6 +69,8 @@ export default {
 }
 </script>
 <style scoped>
-/* 主入口组件不需要样式，样式在各子组件中定义 */
+.avatar-name-root {
+  display: inline-flex;
+  min-width: 0;
+}
 </style>
-

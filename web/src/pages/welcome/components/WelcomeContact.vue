@@ -1,17 +1,17 @@
 <template>
   <div :class="sectionClass">
-    <div class="section-subtitle">加入我们的社区</div>
+    <h2 class="section-subtitle">加入我们的社区</h2>
     <div class="contact-text">
       本站提供 Android、iOS 以及 Harmony 三种移动端 APP（点击右上角APP下载安装）<br/>
       扫描下方二维码或<a href="https://qm.qq.com/q/Uh7X13Hp8Q">点击此处</a>，加入官方QQ交流群/关注公众号
     </div>
     <div class="img-container">
       <div class="qr-item">
-        <img class="img" src="/qq_img/group_qr.png" />
+        <img class="img" src="/qq_img/group_qr.png" width="220" height="220" loading="lazy" decoding="async" alt="ShareSDU QQ 交流群二维码" />
         <div class="qr-label">QQ交流群</div>
       </div>
       <div class="qr-item">
-        <img class="img" src="/wechat/wechat_qr.jpg" />
+        <img class="img" src="/wechat/wechat_qr.jpg" width="220" height="220" loading="lazy" decoding="async" alt="ShareSDU 微信公众号二维码" />
         <div class="qr-label">微信公众号</div>
       </div>
     </div>
@@ -191,4 +191,3 @@ defineProps({
   }
 }
 </style>
-

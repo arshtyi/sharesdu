@@ -1,6 +1,6 @@
 <template>
   <div :class="cardClass">
-    <div class="section-title-small">平台优势</div>
+    <h2 class="section-title-small">平台优势</h2>
     <div class="advantage-list">
       <div class="advantage-item">
         <v-icon color="success">mdi-check-circle</v-icon>
@@ -162,4 +162,3 @@ defineProps({
   }
 }
 </style>
-

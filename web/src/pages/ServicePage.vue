@@ -64,29 +64,6 @@ export default {
             iconSize: 32,
         };
     },
-    async mounted() {
-        // 显示加载状态
-        if (this.setLoading) {
-            this.setLoading({
-                state: true,
-                text: '加载中...',
-                progress: -1
-            });
-        }
-        
-        // 模拟加载过程（如果 services 是异步加载的，可以在这里等待）
-        // 这里使用 setTimeout 模拟异步加载，确保加载状态可见
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        // 隐藏加载状态
-        if (this.setLoading) {
-            this.setLoading({
-                state: false,
-                text: '加载中...',
-                progress: -1
-            });
-        }
-    },
 };
 </script>
 

@@ -127,55 +127,6 @@ class LoggerConfig {
 const config = new LoggerConfig();
 
 /**
- * 深度限制的对象序列化（避免循环引用和过深嵌套）
- */
-function safeStringify(obj, depth = 0) {
-    if (depth > config.maxDepth) {
-        return '[Max Depth Reached]';
-    }
-    
-    if (obj === null || obj === undefined) {
-        return String(obj);
-    }
-    
-    if (typeof obj === 'function') {
-        return `[Function: ${obj.name || 'anonymous'}]`;
-    }
-    
-    if (typeof obj !== 'object') {
-        return obj;
-    }
-    
-    if (obj instanceof Error) {
-        return {
-            name: obj.name,
-            message: obj.message,
-            stack: obj.stack,
-        };
-    }
-    
-    if (Array.isArray(obj)) {
-        return obj.map(item => safeStringify(item, depth + 1));
-    }
-    
-    try {
-        const result = {};
-        for (const key in obj) {
-            if (Object.prototype.hasOwnProperty.call(obj, key)) {
-                try {
-                    result[key] = safeStringify(obj[key], depth + 1);
-                } catch (e) {
-                    result[key] = '[Circular or Error]';
-                }
-            }
-        }
-        return result;
-    } catch (e) {
-        return '[Stringify Error]';
-    }
-}
-
-/**
  * 主日志类
  */
 class Logger {
@@ -207,18 +158,6 @@ class Logger {
         // 输出日志
         consoleMethod(...styledArgs);
         
-        // 如果有额外参数，格式化输出
-        if (args.length > 0) {
-            args.forEach((arg, index) => {
-                try {
-                    const stringified = safeStringify(arg);
-                    if (typeof stringified === 'object') {
-                    } else {
-                    }
-                } catch (e) {
-                }
-            });
-        }
     }
 
     /**
@@ -349,7 +288,7 @@ class Logger {
         if (!this.shouldLog(LogLevel.DEBUG)) {
             return;
         }
-        console.trace();
+        console.trace(`[${this.category}] ${message}`);
     }
 }
 
@@ -410,4 +349,3 @@ export function getLoggerConfig() {
 
 // 导出默认实例和工具函数
 export default logger;
-

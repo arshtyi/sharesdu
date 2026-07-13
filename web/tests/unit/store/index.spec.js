@@ -2,16 +2,13 @@
  * Vuex Store 单元测试
  */
 import store from '@/store/index';
+import { getCookie } from '@/utils/cookie';
 
 // Mock cookie 工具
-const mockGetCookie = jest.fn(() => null);
-const mockSetCookie = jest.fn();
-const mockClearCookie = jest.fn();
-
 jest.mock('@/utils/cookie', () => ({
-  getCookie: () => mockGetCookie(),
-  setCookie: mockSetCookie,
-  clearCookie: mockClearCookie
+  getCookie: jest.fn(() => null),
+  setCookie: jest.fn(),
+  clearCookie: jest.fn()
 }));
 
 jest.mock('@/utils/localStorage', () => ({
@@ -23,7 +20,7 @@ jest.mock('@/utils/localStorage', () => ({
 describe('store/index.js', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockGetCookie.mockReturnValue(null);
+    getCookie.mockReturnValue(null);
     // 重置 store 状态
     store.commit('clearUser');
   });
@@ -77,4 +74,3 @@ describe('store/index.js', () => {
     expect(store.getters.ifRegisterEditor).toBe(true);
   });
 });
-

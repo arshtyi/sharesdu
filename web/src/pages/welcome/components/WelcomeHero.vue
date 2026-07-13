@@ -1,11 +1,11 @@
 <template>
   <div class="hero-section">
     <div class="hero-content">
-      <div class="title-big-bold intro-text-div hero-title">ShareSDU</div>
-      <div class="hero-subtitle">山东大学交流分享平台</div>
-      <div class="title intro-text-div hero-description">
+      <h1 class="title-big-bold intro-text-div hero-title">ShareSDU</h1>
+      <p class="hero-subtitle">山东大学交流分享平台</p>
+      <p class="title intro-text-div hero-description">
         面向山东大学师生与校友，提供分享、交流与学习的校园社区
-      </div>
+      </p>
       <!-- 注册按钮区域 -->
       <div class="hero-cta">
         <v-btn
@@ -56,7 +56,7 @@
   margin-bottom: 40px;
   position: relative;
   overflow: hidden;
-  animation: fadeInUp 0.8s ease-out;
+  animation: fadeInUp 0.45s ease-out;
 }
 
 .hero-content {
@@ -67,20 +67,8 @@
   align-items: center;
 }
 
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, var(--welcome-theme-rgba-10, rgba(102, 126, 234, 0.1)) 0%, transparent 70%);
-  animation: rotate 20s linear infinite;
-  pointer-events: none;
-}
-
 .hero-title {
-  font-size: 4.5rem !important;
+  font-size: clamp(2.75rem, 6vw, 4.5rem) !important;
   font-weight: 900 !important;
   background: linear-gradient(135deg, var(--welcome-theme-gradient-start, #667eea) 0%, var(--welcome-theme-color, #764ba2) 50%, var(--welcome-theme-gradient-end, #f093fb) 100%);
   -webkit-background-clip: text;
@@ -91,8 +79,6 @@
   letter-spacing: -2px;
   position: relative;
   z-index: 1;
-  animation: gradientShift 3s ease infinite;
-  background-size: 200% 200%;
 }
 
 .hero-subtitle {
@@ -236,24 +222,6 @@
   }
 }
 
-@keyframes gradientShift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 @media screen and (min-width: 1000px) {
   .hero-section {
     padding: 80px 60px 70px;
@@ -263,12 +231,12 @@
   }
 
   .hero-title {
-    font-size: 5.5rem !important;
+    font-size: 4.5rem !important;
     margin-bottom: 20px !important;
   }
 
   .hero-subtitle {
-    font-size: 2.4rem;
+    font-size: 2rem;
     margin-bottom: 24px;
   }
 
@@ -363,4 +331,3 @@
   }
 }
 </style>
-

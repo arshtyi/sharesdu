@@ -5,11 +5,19 @@ import { clearCookie, clearTokenCookies, getCookie, setCookie } from './utils/co
 import router from './router';
 import "vuetify/styles";
 import { createVuetify } from "vuetify";
-import * as components from "vuetify/components";
-import * as directives from "vuetify/directives";
+import {
+  VAlert, VApp, VAppBar, VAppBarTitle, VAutocomplete, VAvatar, VBadge,
+  VBottomSheet, VBtn, VBtnToggle, VCard, VCardActions, VCardText, VCardTitle,
+  VCarousel, VCarouselItem, VChip, VColorPicker, VDataTable, VDialog, VDivider,
+  VEmptyState, VExpansionPanel, VExpansionPanelText, VExpansionPanelTitle,
+  VExpansionPanels, VIcon, VImg, VList, VListGroup, VListItem, VListItemTitle,
+  VMenu, VNavigationDrawer, VOtpInput, VOverlay, VProgressCircular,
+  VProgressLinear, VRadio, VRadioGroup, VRating, VSelect, VSheet,
+  VSkeletonLoader, VSlider, VSnackbar, VSpacer, VSwitch, VTab, VTabs,
+  VTabsWindow, VTabsWindowItem, VTextField, VTextarea, VTooltip,
+} from "vuetify/components";
 import store from './store';
-import 'vuetify/dist/vuetify.min.css';
-import '@mdi/font/css/materialdesignicons.css';
+import { sharesduMdi } from '@/plugins/sharesduMdi';
 
 /**
  * import global css style   
@@ -23,8 +31,21 @@ import { initDarkMode } from './utils/darkMode';
 import config from './config';
 
 const vuetify = createVuetify({
-  components,
-  directives,
+  components: {
+    VAlert, VApp, VAppBar, VAppBarTitle, VAutocomplete, VAvatar, VBadge,
+    VBottomSheet, VBtn, VBtnToggle, VCard, VCardActions, VCardText, VCardTitle,
+    VCarousel, VCarouselItem, VChip, VColorPicker, VDataTable, VDialog, VDivider,
+    VEmptyState, VExpansionPanel, VExpansionPanelText, VExpansionPanelTitle,
+    VExpansionPanels, VIcon, VImg, VList, VListGroup, VListItem, VListItemTitle,
+    VMenu, VNavigationDrawer, VOtpInput, VOverlay, VProgressCircular,
+    VProgressLinear, VRadio, VRadioGroup, VRating, VSelect, VSheet,
+    VSkeletonLoader, VSlider, VSnackbar, VSpacer, VSwitch, VTab, VTabs,
+    VTabsWindow, VTabsWindowItem, VTextField, VTextarea, VTooltip,
+  },
+  icons: {
+    defaultSet: 'mdi',
+    sets: { mdi: sharesduMdi },
+  },
 })
 const app=createApp(App);
 /**

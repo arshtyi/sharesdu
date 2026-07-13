@@ -37,7 +37,7 @@
 
 <script setup>
 import { onMounted, provide } from 'vue';
-import { globalProperties } from '@/main';
+import { useDevice } from '@/app/composables';
 import {
   WelcomeTopBar,
   WelcomeDialog,
@@ -56,7 +56,7 @@ defineOptions({
   name: 'WelcomePage',
 });
 
-const deviceType = globalProperties.$deviceType;
+const { deviceType } = useDevice();
 
 // 使用 Composables
 const {
@@ -159,4 +159,3 @@ onMounted(() => {
   }
 }
 </style>
-

@@ -1,13 +1,13 @@
 <template>
-  <IndexPagePc v-if="deviceType == 'desktop'" />
+  <IndexPagePc v-if="deviceType === 'desktop'" />
   <IndexPageMobile v-else />
 </template>
 
 <script setup>
-import { globalProperties } from '@/main';
-const deviceType = globalProperties.$deviceType;
+import { useDevice } from '@/app/composables';
 import IndexPagePc from './pc/index.vue';
 import IndexPageMobile from './mobile/index.vue';
+const { deviceType } = useDevice();
 defineOptions({
   name: 'IndexPage'
 });
@@ -55,4 +55,3 @@ defineEmits(['search_type_changed']);
   }
 }
 </style>
-

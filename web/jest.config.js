@@ -1,5 +1,4 @@
 module.exports = {
-  preset: '@vue/cli-plugin-unit-jest',
   testEnvironment: 'jsdom',
   transform: {
     '^.+\\.vue$': '@vue/vue3-jest',
@@ -7,6 +6,7 @@ module.exports = {
   },
   moduleFileExtensions: ['js', 'json', 'vue'],
   moduleNameMapper: {
+    '^@vue/test-utils$': '<rootDir>/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js',
     '^@/(.*)$': '<rootDir>/src/$1',
     '^vuetify/components$': '<rootDir>/node_modules/vuetify/lib/components',
     '^vuetify/directives$': '<rootDir>/node_modules/vuetify/lib/directives'
@@ -37,4 +37,3 @@ module.exports = {
     }
   }
 };
-

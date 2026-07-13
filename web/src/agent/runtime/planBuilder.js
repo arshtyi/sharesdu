@@ -2,13 +2,21 @@ import { getAgentEnumHints } from '../enumNormalizer';
 
 const enumHints = getAgentEnumHints();
 
+const domainToolAllowlist = Object.freeze({
+  course: ['agent_course_search', 'agent_course_context', 'agent_content_search', 'agent_thread_context', 'agent_stats_aggregate', 'search_courses', 'global_search', 'multi_keyword_search', 'get_course_detail', 'get_course_list', 'get_course_post_list', 'get_course_score_list', 'batch_courses_info'],
+  article: ['agent_content_search', 'agent_thread_context', 'agent_stats_aggregate', 'search_articles', 'global_search', 'multi_keyword_search', 'get_article_detail', 'get_article_post_list', 'get_article_list', 'get_post_detail', 'batch_articles_info'],
+  post: ['agent_content_search', 'agent_thread_context', 'agent_stats_aggregate', 'search_posts', 'search_replies', 'global_search', 'multi_keyword_search', 'get_post_detail', 'get_post_reply_list', 'get_reply_detail', 'batch_posts_info'],
+  user: ['agent_content_search', 'agent_thread_context', 'agent_stats_aggregate', 'global_search', 'get_user_homepage', 'get_user_content_preview', 'get_user_content_list'],
+  search: ['agent_content_search', 'agent_course_search', 'agent_thread_context', 'agent_stats_aggregate', 'global_search', 'multi_keyword_search', 'search_articles', 'search_posts', 'search_replies', 'search_courses'],
+});
+
 const shortText = (value, limit = 160) => {
   const text = String(value || '').trim().replace(/\s+/g, ' ');
   return text.length > limit ? `${text.slice(0, limit)}…` : text;
 };
 
 export class AgentPlanBuilder {
-  build({ intents = [], domain, userText, history = [] }) {
+  build({ intents = [], domain, userText, history = [], cfg = {} }) {
     const siteDocs = intents.includes('site_docs');
     const siteQuery = intents.includes('site_query');
     const hasOffTopic = intents.includes('off_topic');
@@ -30,6 +38,14 @@ export class AgentPlanBuilder {
       normalization: {},
       fallback: [],
       clarification_risk: 'low',
+      allowed_tools: [],
+      budgets: {
+        max_rounds: cfg.maxRounds,
+        max_tool_calls: cfg.maxToolCalls,
+        max_total_tokens: cfg.maxTotalTokens,
+        max_total_ms: cfg.maxTotalMs,
+        max_result_bytes: cfg.maxToolResultBytes,
+      },
     };
 
     if (domain === 'course') {
@@ -62,6 +78,13 @@ export class AgentPlanBuilder {
       plan.doc_focus = ['intro', 'to_know', 'privacy', 'about_us'];
     }
 
+    plan.allowed_tools = [...new Set([
+      ...(domainToolAllowlist[plan.domain] || domainToolAllowlist.search),
+      ...plan.tool_priority,
+      ...plan.fallback,
+      ...(siteDocs ? ['get_site_doc', 'get_site_doc_link'] : []),
+    ])];
+
     return plan;
   }
 
@@ -82,7 +105,7 @@ export class AgentPlanBuilder {
       lines.push(`- 兜底路径：${plan.fallback.join(' -> ')}`);
     }
     lines.push(`- 澄清风险：${plan.clarification_risk || 'low'}`);
+    lines.push(`- 执行预算：最多 ${plan.budgets?.max_rounds || '-'} 轮 / ${plan.budgets?.max_tool_calls || '-'} 次工具 / ${plan.budgets?.max_total_ms || '-'}ms`);
     return lines.join('\n');
   }
 }
-

@@ -21,7 +21,7 @@ jest.mock('axios', () => {
   
   return {
     __esModule: true,
-    default: jest.fn(() => mockAxiosInstance),
+    default: { create: jest.fn(() => mockAxiosInstance) },
     create: jest.fn(() => mockAxiosInstance)
   };
 });
@@ -38,6 +38,7 @@ jest.mock('@/utils/response_cacher', () => ({
 }));
 
 jest.mock('@/config', () => ({
+  __esModule: true,
   default: {
     api: {
       baseURL: 'https://api.sharesdu.com/index/api'

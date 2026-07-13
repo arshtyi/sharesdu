@@ -58,7 +58,7 @@ export function getCookie(name) {
       if(!noNeedHexKey.includes(name)){
         value=hexToUnicode(value)
       }
-      return value;
+      return value === '' ? null : value;
     }
   }
   return null;

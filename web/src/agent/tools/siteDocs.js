@@ -120,15 +120,33 @@ export const SITE_DOCS_TOOLSET = {
         },
       },
     },
+    {
+      type: 'function',
+      function: {
+        name: 'get_site_doc_link',
+        description: '获取本站文档的站内可点击链接和原文地址，不读取正文。',
+        parameters: {
+          type: 'object',
+          properties: {
+            doc_key: {
+              type: 'string',
+              description: '文档标识，如 intro, to_know, privacy, about_us, developer/introduction 等',
+            },
+          },
+          required: ['doc_key'],
+          additionalProperties: false,
+        },
+      },
+    },
   ],
   handlers: {
-    get_site_doc: async ({ doc_key }) => {
+    get_site_doc: async ({ doc_key }, { signal } = {}) => {
       try {
         const meta = resolveDocMeta(doc_key);
         if (!meta?.raw_url) {
           return { ok: false, error: 'invalid_doc_key', data: { doc_key } };
         }
-        const response = await fetch(meta.raw_url);
+        const response = await fetch(meta.raw_url, { signal });
         if (!response.ok) {
           return {
             ok: false,

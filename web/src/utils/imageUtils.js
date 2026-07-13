@@ -2,7 +2,6 @@
  * 图片处理相关工具函数
  * 包含图片压缩和图片获取处理函数
  */
-import { globalProperties } from '@/main';
 import config from '@/config';
 import { globalImageCacher } from '@/utils/global_img_cache';
 
@@ -74,13 +73,13 @@ export async function compressImage(file, maxSizeKB) {
 const SUCCESS_CACHE_TTL = 45 * 60 * 1000; // 45 分钟
 const ERROR_CACHE_TTL = 5 * 60 * 1000; // 5 分钟
 const imageInFlightRequests = new Map();
+const imageDict = config.getImageDict?.() || {};
 
 const resolvePlaceholder = (type = 'svg', state = 'empty') => {
-    const dict = globalProperties?.$imgDict || {};
+    const dict = imageDict;
     return (
         dict?.[type]?.[state] ||
         dict?.svg?.[state] ||
-        globalProperties?.$imgLazy ||
         '/resource/default_img.svg'
     );
 };
@@ -280,4 +279,3 @@ export function replaceImageBlob(dict, content) {
     }
     return content;
 }
-

@@ -49,7 +49,7 @@
           <div class="footer-icp">
             <a href="https://beian.miit.gov.cn/" target="_blank" class="icp-link">鲁ICP备2024118409号-1</a>
             <div v-if="deviceType == 'desktop'" class="footer-police">
-              <img src="/police.png" alt="公安">
+              <img src="/police.png" width="20" height="20" loading="lazy" decoding="async" alt="公安备案图标">
               <a href="//www.beian.gov.cn/portal/registerSystemInfo?recordcode=37028202001173" target="_blank" class="icp-link">
                 鲁公网安备37028202001173号
               </a>
@@ -57,7 +57,7 @@
           </div>
           <div class="footer-icp">
             <div v-if="deviceType == 'mobile'" class="footer-police">
-              <img src="/police.png" alt="公安">
+              <img src="/police.png" width="20" height="20" loading="lazy" decoding="async" alt="公安备案图标">
               <a href="//www.beian.gov.cn/portal/registerSystemInfo?recordcode=37028202001173" target="_blank" class="icp-link">
                 鲁公网安备37028202001173号
               </a>
@@ -71,8 +71,8 @@
 
 <script setup>
 import { computed } from 'vue';
-import { globalProperties } from '@/main';
-const deviceType=globalProperties.$deviceType;
+import { useDevice } from '@/app/composables';
+const { deviceType } = useDevice();
 const currentYear = computed(() => new Date().getFullYear());
 </script>
 
@@ -271,4 +271,3 @@ const currentYear = computed(() => new Date().getFullYear());
   }
 }
 </style>
-

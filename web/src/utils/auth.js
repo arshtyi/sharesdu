@@ -5,7 +5,7 @@
 
 import { getAccessToken } from "@/api/modules/token";
 import { clearTokenCookies, getCookie, setCookie } from "./cookie";
-import { globalProperties } from "@/main";
+import config from '@/config';
 import { acquireLock, releaseLock } from "./lock";
 import { selfDefineLocalStorage } from "./localStorage";
 import { isDebugHashPath, openPage } from "./navigation";
@@ -102,7 +102,7 @@ export async function refreshAccessToken() {
                             loginResponse.user_id,
                             loginResponse.email,
                             loginResponse.refresh,
-                            globalProperties.$apiUrl + "/image/user?user_id=" + loginResponse.user_id,
+                            config.api.baseURL + "/image/user?user_id=" + loginResponse.user_id,
                             loginResponse.is_master,
                             loginResponse.is_super_master,
                             selfDefineLocalStorage.getItem("passwd")
@@ -147,7 +147,7 @@ export async function refreshAccessToken() {
                     loginResponse.user_id,
                     loginResponse.email,
                     loginResponse.refresh,
-                    globalProperties.$apiUrl + "/image/user?user_id=" + loginResponse.user_id,
+                    config.api.baseURL + "/image/user?user_id=" + loginResponse.user_id,
                     loginResponse.is_master,
                     loginResponse.is_super_master,
                     selfDefineLocalStorage.getItem("passwd")

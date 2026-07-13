@@ -1,6 +1,7 @@
 <!-- src/AppDesktop.vue - PC 端版本 -->
 <template>
   <v-app class="desktop-app">
+    <a class="skip-link" href="#router-view">跳到主要内容</a>
     <submit-loading-view :init-data="loadMsg"></submit-loading-view>
     <global-message :alert-msg="alertMsg" @close="closeMessage"></global-message>
     <div v-if="this.ifShowNav" class="nav-bar" :style="{ 'background-color': navColor }">
@@ -18,14 +19,14 @@
         :boxShadowColor="hexToRgba(navIconColor, 0.5)" :placeholderColor="navIconColor"
         :inputStyle="{ 'border-radius': '20px', height: '35px',width: ifPCShowIndexTypeTab ? '300px' : '500px', 'padding-left': '15px' }"></search-input>
       <div class="search-btn-container">
-        <v-btn id="search-btn" @click="search" icon="mdi-magnify" variant="text" :color="navIconColor" size="35">
+        <v-btn id="search-btn" aria-label="搜索" @click="search" icon="mdi-magnify" variant="text" :color="navIconColor" size="35">
           <div class="icon-container">
             <v-icon type="mdi" icon="mdi-magnify" :color="navIconColor" size="25"></v-icon>
           </div>
         </v-btn>
       </div>
       <v-spacer></v-spacer>
-      <v-btn v-if="ifShowHomeBtn" @click="toHomePage" icon="mdi-home" variant="text" size="40"
+      <v-btn v-if="ifShowHomeBtn" aria-label="返回首页" @click="toHomePage" icon="mdi-home" variant="text" size="40"
         :color="navIconColor">
         <div class="icon-container">
           <v-icon type="mdi" icon="mdi-home" :color="navIconColor" size="25"></v-icon>
@@ -89,7 +90,7 @@
             v-bind="props">
             创作
           </v-btn>
-          <v-btn v-else type="mdi" icon="mdi-plus" :color="navIconColor" variant="text" v-bind="props"
+          <v-btn v-else aria-label="创建内容" type="mdi" icon="mdi-plus" :color="navIconColor" variant="text" v-bind="props"
             size="40"></v-btn>
         </template>
         <v-list>
@@ -99,9 +100,9 @@
       </v-menu>
     </div>
     <div
-      id="router-view-container"
+      id="router-view-container" tabindex="-1"
       :style="{ 'width': '100%', 'max-width': '100%', 'margin-top': routerMarginTop, background: '#ffffff', 'margin-bottom': '10px', 'flex': 1, 'min-height': 0, 'overflow-y': 'auto', 'overflow-x': 'hidden', position: 'relative' }">
-      <router-view id="router-view" :key="$route.fullPath" class="router-view" @alert="alert" @set_loading="setLoading"
+      <router-view id="router-view" :key="`${String($route.name)}:${JSON.stringify($route.params)}`" class="router-view" @alert="alert" @set_loading="setLoading"
         @search_type_changed="handleSearchTypeChanged" />
     </div>
   </v-app>

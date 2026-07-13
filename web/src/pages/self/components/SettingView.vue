@@ -106,8 +106,8 @@ const handleShowColorSelector = () => {
   emit('show-color-selector');
 };
 
-const handleToggleDarkMode = () => {
-  darkModeEnabled.value = toggleDarkMode();
+const handleToggleDarkMode = async () => {
+  darkModeEnabled.value = await toggleDarkMode();
 };
 </script>
 

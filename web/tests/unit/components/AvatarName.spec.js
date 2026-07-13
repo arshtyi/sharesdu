@@ -2,7 +2,7 @@
  * AvatarName 组件单元测试
  */
 import { mount } from '@vue/test-utils';
-import AvatarName from '@/components/common/AvatarName.vue';
+import AvatarName from '@/components/common/AvatarName/index.vue';
 import { getCookie } from '@/utils/cookie';
 
 // Mock 依赖
@@ -22,6 +22,22 @@ jest.mock('@/utils/global_img_cache', () => ({
 }));
 jest.mock('@/utils/other', () => ({
   openPage: jest.fn()
+}));
+jest.mock('@/components/common/AvatarName/pc.vue', () => ({
+  __esModule: true,
+  default: {
+    name: 'AvatarNamePc',
+    props: ['initData', 'ifShowName', 'clickable'],
+    template: '<span>{{ ifShowName ? initData.name : "" }}</span>'
+  }
+}));
+jest.mock('@/components/common/AvatarName/mobile.vue', () => ({
+  __esModule: true,
+  default: {
+    name: 'AvatarNameMobile',
+    props: ['initData', 'ifShowName', 'clickable'],
+    template: '<span>{{ ifShowName ? initData.name : "" }}</span>'
+  }
 }));
 jest.mock('@/main', () => ({
   globalProperties: {
@@ -93,7 +109,6 @@ describe('AvatarName.vue', () => {
     await new Promise(resolve => setTimeout(resolve, 100));
     
     // 检查是否显示默认图标
-    const icon = wrapper.find('v-icon-stub');
     // 由于懒加载，可能不会立即显示图标
     expect(wrapper.exists()).toBe(true);
   });
@@ -123,9 +138,7 @@ describe('AvatarName.vue', () => {
       }
     });
     
-    await wrapper.trigger('click');
-    // 验证 toAuthorPage 方法存在
-    expect(wrapper.vm.toAuthorPage).toBeDefined();
+    expect(wrapper.findComponent({ name: 'AvatarNamePc' }).props('clickable')).toBe(true);
   });
 
   test('应该忽略点击事件当clickable为false时', async () => {
@@ -139,8 +152,6 @@ describe('AvatarName.vue', () => {
       }
     });
     
-    await wrapper.trigger('click');
-    // 应该不会触发导航
-    expect(wrapper.vm.toAuthorPage).toBeDefined();
+    expect(wrapper.findComponent({ name: 'AvatarNamePc' }).props('clickable')).toBe(false);
   });
 });

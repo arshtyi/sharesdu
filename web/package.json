@@ -1,12 +1,13 @@
 {
   "name": "sharesdu",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "serve:clean": "npx rimraf node_modules/.cache && vue-cli-service serve",
     "lint": "vue-cli-service lint",
     "build": "vue-cli-service build --report",
+    "check:bundle": "node scripts/check-bundle-budget.mjs",
     "test:unit": "jest",
     "test:unit:watch": "jest --watch",
     "test:unit:coverage": "jest --coverage",
@@ -15,16 +16,13 @@
     "test": "npm run test:unit && npm run test:e2e"
   },
   "dependencies": {
-    "@jamescoyle/vue-icon": "^0.1.2",
-    "@mdi/font": "^7.4.47",
-    "@mdi/js": "^7.4.47",
-    "@mdi/light-js": "^0.2.63",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "@wangeditor/editor": "^5.1.23",
     "@wangeditor/editor-for-vue": "^5.1.12",
     "@wangeditor/plugin-formula": "^1.0.11",
+    "ajv": "^8.20.0",
     "aos": "^2.3.4",
     "axios": "^1.7.2",
     "darkreader": "^4.9.118",
@@ -87,7 +85,19 @@
           ]
         }
       ]
-    }
+    },
+    "overrides": [
+      {
+        "files": ["tests/unit/**/*.js", "tests/setup.js"],
+        "env": { "jest": true }
+      },
+      {
+        "files": ["tests/e2e/**/*.js"],
+        "env": { "mocha": true },
+        "globals": { "cy": "readonly", "Cypress": "readonly" }
+      }
+    ],
+    "ignorePatterns": ["src/utils/logger/examples.js"]
   },
   "browserslist": [
     "> 1%",

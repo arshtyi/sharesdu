@@ -50,14 +50,24 @@ export const createSiteDocsAgent = () => ({
   tools: SITE_DOCS_TOOLSET.tools,
   async run({ client, cfg, history, context, userText, signal, plan, onToolStart, onToolResult, onEvent }) {
     const messages = toMessages(history, userText, `${SITE_DOCS_SYSTEM}${formatPlanBlock(plan)}`, context?.memoryMessage);
+    const allowed = new Set(plan?.allowed_tools || []);
+    const constrainedTools = allowed.size
+      ? SITE_DOCS_TOOLSET.tools.filter((tool) => allowed.has(tool.function?.name))
+      : SITE_DOCS_TOOLSET.tools;
     return await runToolLoop({
       client,
       model: cfg.model,
       temperature: cfg.temperature,
       max_tokens: cfg.maxTokens,
       maxRounds: cfg.maxRounds ?? 20,
+      maxToolCalls: cfg.maxToolCalls,
+      maxTotalTokens: cfg.maxTotalTokens,
+      maxTotalMs: cfg.maxTotalMs,
+      maxToolResultBytes: cfg.maxToolResultBytes,
+      toolTimeoutMs: cfg.toolTimeoutMs,
+      toolConcurrency: cfg.toolConcurrency,
       messages,
-      tools: SITE_DOCS_TOOLSET.tools,
+      tools: constrainedTools,
       handlers: SITE_DOCS_TOOLSET.handlers,
       signal,
       onToolStart,

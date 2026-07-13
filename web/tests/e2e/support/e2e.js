@@ -2,7 +2,7 @@
 import './commands';
 
 // 设置全局错误处理
-Cypress.on('uncaught:exception', (err, runnable) => {
+Cypress.on('uncaught:exception', (err) => {
   // 忽略某些已知的错误
   if (err.message.includes('ResizeObserver loop limit exceeded')) {
     return false;
@@ -12,4 +12,3 @@ Cypress.on('uncaught:exception', (err, runnable) => {
   }
   return true;
 });
-

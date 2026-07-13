@@ -3,16 +3,15 @@
  */
 import { ref, computed } from 'vue';
 import { globalProperties } from '@/main';
-import { getDeviceType } from '@/utils/device';
+import { useDevice } from '@/app/composables/useDevice';
 
 export function useLoginState() {
   // 主题颜色
   const themeColor = globalProperties.$themeColor;
   
   // 设备类型
-  const deviceType = globalProperties.$deviceType;
-  const inputType = deviceType === 'desktop' ? 'compact' : 'comfortable';
-  const ifMobile = computed(() => getDeviceType() === 'mobile');
+  const { deviceType, ifMobile } = useDevice();
+  const inputType = computed(() => deviceType.value === 'desktop' ? 'compact' : 'comfortable');
   
   // UI 状态
   const ifShowEmailExamineCard = ref(false);
@@ -84,4 +83,3 @@ export function useLoginState() {
     shiftRegisterMethod,
   };
 }
-
