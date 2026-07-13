@@ -125,12 +125,28 @@
                     <v-icon type="mdi" icon="mdi-help-circle-outline" color="#8a8a8a" size="16"
                         class="before-icon"></v-icon>
                 </div>
-                <div v-if="data.sourceUrl==''" class="before-container">
-                    <v-file-upload v-model="this.file" title="" max-height="98" width="98" @change="handleFileChange" clearable variant="compact" density="compact">
-                    </v-file-upload>
-                </div>
-                <div v-if="data.sourceUrl!=''" class="before-container">
-                    <div>暂不支持在编辑时上传/修改资源，如有变更需求请编辑新的文章</div>
+                <div class="resource-upload-container">
+                    <div v-if="file" class="resource-preview-row">
+                        <v-icon icon="mdi-file-document-outline" color="#8a8a8a" size="20" class="resource-icon"></v-icon>
+                        <span class="resource-name">{{ file.name }}</span>
+                        <v-btn variant="tonal" :color="themeColor" class="resource-action-btn" @click="cancelNewFile">
+                            取消
+                        </v-btn>
+                    </div>
+                    <div v-else-if="hasExistingResource" class="resource-preview-row">
+                        <v-icon icon="mdi-file-document-outline" color="#8a8a8a" size="20" class="resource-icon"></v-icon>
+                        <span class="resource-name">{{ resourceDisplayName }}</span>
+                        <v-btn variant="tonal" :color="themeColor" class="resource-action-btn" @click="selectNewFile">
+                            更换
+                        </v-btn>
+                        <v-btn variant="tonal" color="#8a8a8a" class="resource-action-btn" @click="removeResource">
+                            移除
+                        </v-btn>
+                    </div>
+                    <div v-else class="before-container">
+                        <v-file-upload v-model="this.file" title="" max-height="98" width="98" @update:model-value="handleFileModelChange" clearable variant="compact" density="compact">
+                        </v-file-upload>
+                    </div>
                 </div>
             </div>
         </div>
@@ -158,6 +174,8 @@ export default {
                     originLink: "",
                     coverLink:"",
                     sourceUrl:"",
+                    initialSourceUrl:"",
+                    resourceRemoved: false,
                 }
             },
         },
@@ -200,6 +218,8 @@ export default {
             originLink: "",
             coverLink:"",
             sourceUrl:"",
+            initialSourceUrl:"",
+            resourceRemoved: false,
         };
         const file=null;
         return{
@@ -207,6 +227,18 @@ export default {
             file,
             tmpCoverImage:null,
         }
+    },
+    computed: {
+        hasExistingResource() {
+            return !!(this.data.sourceUrl && !this.data.resourceRemoved);
+        },
+        resourceDisplayName() {
+            if (!this.data.sourceUrl) {
+                return '';
+            }
+            const parts = this.data.sourceUrl.split('/');
+            return parts[parts.length - 1] || this.data.sourceUrl;
+        },
     },
     watch: {
         initData: {
@@ -219,6 +251,8 @@ export default {
                         originLink: newVal.originLink || "",
                         coverLink: newVal.coverLink || "",
                         sourceUrl: newVal.sourceUrl || "",
+                        initialSourceUrl: newVal.initialSourceUrl || "",
+                        resourceRemoved: !!newVal.resourceRemoved,
                     };
                 }
             },
@@ -250,35 +284,67 @@ export default {
             };
             input.click();
         },
-        handleFileChange(event) {
-            /**
-             * only select file, upload the file in editor page
-             */
-            // temporarily disable uploading resources
-            // eslint-disable-next-line
-            const selectedFile = event.target.files[0]
+        validateSelectedFile(selectedFile) {
             if (!selectedFile) {
-                this.$emit('alert', { state: true, color: 'warning', title: '为选择文件', content: '如果需要上传相关资源，请重新上传' })
-                return
+                return false;
             }
             const allowTypes = [
                 'application/zip',
                 'application/pdf',
                 'application/msword',
-                'application/vnd.ms-powerpoint'
-            ]
+                'application/vnd.ms-powerpoint',
+            ];
             if (!allowTypes.includes(selectedFile.type)) {
-                this.$emit('alert', { state: true, color: 'warning', title: '不支持此文件类型', content: '目前仅支持上传pdf,word,ppt以及压缩包类型的文件' })
-                this.file = null
-                return
+                this.$emit('alert', { state: true, color: 'warning', title: '不支持此文件类型', content: '目前仅支持上传pdf,word,ppt以及压缩包类型的文件' });
+                return false;
             }
-            const maxSize = 80 * 1024 * 1024 // max 100MB
+            const maxSize = 80 * 1024 * 1024;
             if (selectedFile.size > maxSize) {
-                this.$emit('alert', { state: true, color: 'warning', title: '文件大小超过限制', content: '一次最多可以上传一个不多于80MB的文件' })
-                this.file = null
-                return
+                this.$emit('alert', { state: true, color: 'warning', title: '文件大小超过限制', content: '一次最多可以上传一个不多于80MB的文件' });
+                return false;
             }
-            this.file = selectedFile;
+            return true;
+        },
+        handleFileModelChange(selectedFile) {
+            let file = selectedFile;
+            if (Array.isArray(file)) {
+                file = file[0] || null;
+            }
+            if (!file) {
+                this.file = null;
+                return;
+            }
+            if (!this.validateSelectedFile(file)) {
+                this.file = null;
+                return;
+            }
+            this.file = file;
+            this.data.resourceRemoved = false;
+        },
+        selectNewFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.zip,.pdf,.doc,.ppt,application/zip,application/pdf,application/msword,application/vnd.ms-powerpoint';
+            input.onchange = (event) => {
+                const selectedFile = event.target.files[0];
+                if (!selectedFile) {
+                    return;
+                }
+                if (!this.validateSelectedFile(selectedFile)) {
+                    return;
+                }
+                this.file = selectedFile;
+                this.data.resourceRemoved = false;
+            };
+            input.click();
+        },
+        removeResource() {
+            this.data.sourceUrl = '';
+            this.data.resourceRemoved = true;
+            this.file = null;
+        },
+        cancelNewFile() {
+            this.file = null;
         },
         addTag() {
             if(!this.data.tags){
@@ -512,6 +578,36 @@ export default {
 .cover-upload-container {
     display: flex;
     align-items: flex-start;
+}
+
+.resource-upload-container {
+    display: flex;
+    align-items: flex-start;
+    flex: 1;
+}
+
+.resource-preview-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 40px;
+}
+
+.resource-icon {
+    flex-shrink: 0;
+}
+
+.resource-name {
+    color: #5a5a5a;
+    word-break: break-all;
+    max-width: 420px;
+}
+
+.resource-action-btn {
+    height: 28px;
+    min-width: 0;
+    padding: 0 12px;
 }
 
 .cover-upload-btn {

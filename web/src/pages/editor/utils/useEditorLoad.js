@@ -182,7 +182,79 @@ export function useEditorLoad(
       return null;
     }
   };
-  
+
+  /**
+   * 编辑模式下处理资源更新（上传新文件 / 清空资源）
+   */
+  const handleResourceOnEdit = async (articleId, barData, file) => {
+    if (file) {
+      setLoading(getLoadMsg('正在上传资源文件...', -1));
+      const resourceResponse = await uploadResource(file, articleId, setLoading);
+
+      if (resourceResponse.status === 200 || resourceResponse.status === 201) {
+        const newSourceUrl = resourceResponse.source_url || '';
+        barData.sourceUrl = newSourceUrl;
+        barData.initialSourceUrl = newSourceUrl;
+        barData.resourceRemoved = false;
+
+        if (editorBarRef.value?.$data) {
+          editorBarRef.value.$data.data.sourceUrl = newSourceUrl;
+          editorBarRef.value.$data.data.initialSourceUrl = newSourceUrl;
+          editorBarRef.value.$data.data.resourceRemoved = false;
+          editorBarRef.value.$data.file = null;
+        }
+
+        alert(getNormalSuccessAlert('资源上传成功'));
+        return true;
+      }
+
+      alert(getNormalErrorAlert(resourceResponse.message || '资源上传失败'));
+      return true;
+    }
+
+    if (barData.resourceRemoved && barData.initialSourceUrl) {
+      setLoading(getLoadMsg('正在移除资源...'));
+      const clearResponse = await editArticle({
+        article_id: articleId,
+        resource_link: '',
+      });
+      setLoading(getCancelLoadMsg());
+
+      if (clearResponse.status === 200) {
+        barData.initialSourceUrl = '';
+        if (editorBarRef.value?.$data?.data) {
+          editorBarRef.value.$data.data.initialSourceUrl = '';
+        }
+        return true;
+      }
+
+      alert(getNormalErrorAlert(clearResponse.message || '资源移除失败'));
+      return false;
+    }
+
+    return true;
+  };
+
+  /**
+   * 创建模式下上传资源文件
+   */
+  const uploadResourceOnCreate = async (newArticleId, file) => {
+    if (!file) {
+      return true;
+    }
+
+    setLoading(getLoadMsg('正在上传资源文件...', -1));
+    const resourceResponse = await uploadResource(file, newArticleId, setLoading);
+
+    if (resourceResponse.status === 200 || resourceResponse.status === 201) {
+      alert(getNormalSuccessAlert('资源上传成功'));
+      return true;
+    }
+
+    alert(getNormalErrorAlert(resourceResponse.message || '资源上传失败'));
+    return true;
+  };
+
   /**
    * 提交文章
    * @param {String} routeId - 路由参数中的文章ID（用于判断是编辑还是创建）
@@ -222,7 +294,7 @@ export function useEditorLoad(
       }
       
       // 3. 准备表单数据
-      setLoading(getLoadMsg('正在创建文章...'));
+      setLoading(getLoadMsg(routeId ? '正在更新文章...' : '正在创建文章...'));
       
       const form = {};
       form.article_title = editorData.value.title;
@@ -233,12 +305,12 @@ export function useEditorLoad(
       
       // 获取 editorBar 数据
       const barData = editorBarRef.value?.$data?.data || editorBarData.value;
+      const pendingResourceFile = editorBarRef.value?.$data?.file || null;
       form.tags = arrToString(barData.tags || []);
       form.article_summary = barData.summary || '';
       form.article_type = barData.type === '原创' ? 'original' : 'repost';
       form.origin_link = barData.originLink || '';
       form.cover_link = coverUrl || barData.coverLink || '';
-      form.source_url = barData.sourceUrl || '';
       
       let response;
       
@@ -249,10 +321,16 @@ export function useEditorLoad(
         response = await editArticle(form);
         
         if (response.status === 200) {
+          const resourceOk = await handleResourceOnEdit(routeId, barData, pendingResourceFile);
+          if (!resourceOk) {
+            setLoading(getCancelLoadMsg());
+            return false;
+          }
+
           alert({
             state: true,
             color: 'success',
-            title: '创建成功',
+            title: '更新成功',
             content: response.message,
           });
           ifSubmit.value = true;
@@ -270,23 +348,7 @@ export function useEditorLoad(
         
         if (response.status === 200) {
           setArticleId(response.article_id);
-          
-          // 5. 上传资源文件（如果有）
-          const file = editorBarRef.value?.$data?.file;
-          if (file) {
-            setLoading(getLoadMsg('正在上传资源文件...', -1));
-            const resourceResponse = await uploadResource(
-              file,
-              response.article_id,
-              setLoading
-            );
-            
-            if (resourceResponse.status === 200 || resourceResponse.status === 201) {
-              alert(getNormalSuccessAlert('资源上传成功'));
-            } else {
-              alert(getNormalErrorAlert('资源上传失败'));
-            }
-          }
+          await uploadResourceOnCreate(response.article_id, pendingResourceFile);
           
           ifSubmit.value = true;
           setEditFinishCardState(true);

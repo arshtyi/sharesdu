@@ -29,7 +29,9 @@ export function transformArticleData(response) {
       tags: Array.isArray(article.article_tags) ? article.article_tags : [],
       originLink: article.origin_link || '',
       coverLink: article.cover_link || '',
-      sourceUrl: 'none', // article.source_url 暂时不使用
+      sourceUrl: article.source_url || '',
+      initialSourceUrl: article.source_url || '',
+      resourceRemoved: false,
     },
   };
 }

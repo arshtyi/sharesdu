@@ -21,6 +21,8 @@ export function useEditorData() {
     originLink: '',
     coverLink: '',
     sourceUrl: '',
+    initialSourceUrl: '',
+    resourceRemoved: false,
   });
   
   // HTML 编辑器数据
@@ -85,6 +87,8 @@ export function useEditorData() {
       originLink: data.originLink || '',
       coverLink: data.coverLink || '',
       sourceUrl: data.sourceUrl || '',
+      initialSourceUrl: data.initialSourceUrl || '',
+      resourceRemoved: !!data.resourceRemoved,
     };
   };
   
