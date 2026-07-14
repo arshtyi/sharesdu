@@ -99,7 +99,7 @@ import { computed } from 'vue';
 import StarButton from '@/components/star/StarButton.vue';
 import LoadingContentWrapper from '@/components/common/LoadingContentWrapper.vue';
 import { formatRelativeTime } from '@/utils/other';
-import { getDeviceType } from '@/utils/device';
+import { useDevice } from '@/app/composables/useDevice';
 
 const props = defineProps({
   course: {
@@ -125,7 +125,7 @@ const props = defineProps({
 });
 
 defineEmits(['generate-share-image', 'edit-course', 'show-history', 'alert', 'set-loading']);
-const ifMobile=getDeviceType()=='mobile';
+const { ifMobile } = useDevice();
 const formattedPublishTime = computed(() => {
   return formatRelativeTime(props.course.publishTime);
 });

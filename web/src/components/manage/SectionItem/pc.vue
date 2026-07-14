@@ -20,12 +20,12 @@
                 <v-spacer></v-spacer>
                 <div class="text-small bottom-bar">
                     <div class="bottom-item section-name" :style="{ color: themeColor }">
-                        <v-icon icon="mdi-bulletin-board" size="18" style="margin-top: 2px;"></v-icon>
+                        <v-icon icon="mdi-bulletin-board" size="18"></v-icon>
                         {{ data.sectionName }}
                     </div>
                     <v-spacer></v-spacer>
                     <div class="bottom-item publish-time">
-                        <v-icon icon="mdi-clock-outline" size="18" style="margin-top: 2px;"></v-icon>
+                        <v-icon icon="mdi-clock-outline" size="18"></v-icon>
                         {{ data.publishTime }}
                     </div>
                 </div>
@@ -167,4 +167,3 @@ export default {
     }
 }
 </style>
-

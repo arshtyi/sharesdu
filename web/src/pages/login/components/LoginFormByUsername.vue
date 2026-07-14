@@ -33,7 +33,7 @@
       :color="themeColor"
       size="large"
       rounded="lg">
-      <v-icon size="20" style="margin-right:5px;margin-top:3px;" class="mr-2">mdi-login</v-icon>
+      <v-icon size="20" class="mr-2">mdi-login</v-icon>
       登录
     </v-btn>
   </div>
@@ -122,4 +122,3 @@ const valPassWord = (passWord) => {
   }
 }
 </style>
-

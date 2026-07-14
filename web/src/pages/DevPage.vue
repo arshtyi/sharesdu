@@ -29,6 +29,7 @@
 import PostHtmlDevCard from '@/components/dev/PostHtmlDevCard.vue';
 import { globalProperties } from '@/main';
 import { ref } from 'vue';
+import { useDevice } from '@/app/composables/useDevice';
 
 export default {
     props: {
@@ -38,7 +39,7 @@ export default {
         let drawer = ref(true);
         let choose = ref('post-html');
         const rail = ref(true);
-        const deviceType = globalProperties.$deviceType;
+        const { deviceType } = useDevice();
         const navVisible = ref(false);
         const themeColor = globalProperties.$themeColor;
         return {

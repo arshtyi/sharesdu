@@ -23,7 +23,7 @@
       :disabled="!validateFinalEmail(loginData.email)"
       size="large"
       rounded="lg">
-      <v-icon size="20" style="margin-right:5px;margin-top:3px;" class="mr-2">mdi-email</v-icon>
+      <v-icon size="20" class="mr-2">mdi-email</v-icon>
       登录
     </v-btn>
   </div>
@@ -194,4 +194,3 @@ const handleEmailChange = (value) => {
   }
 }
 </style>
-

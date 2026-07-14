@@ -11,8 +11,7 @@
         class="loading-view"
       >
         <template v-if="sectionList.length > 0">
-        <section-item 
-          style="margin-bottom: 10px;"
+        <section-item
           v-for="item in sectionList" 
           :key="item.id" 
           :init-data="item"
@@ -75,6 +74,12 @@ defineProps({
   .loading-view {
     width: 100%;
     min-height: 200px;
+  }
+
+  .loading-view :deep(.loading-content-wrapper__content) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
   }
 }
 

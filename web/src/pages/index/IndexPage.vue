@@ -115,7 +115,7 @@ import { usePostPolling } from '@/app/composables';
 import { VPullToRefresh } from 'vuetify/lib/labs/components.mjs';
 import { selfDefinedSessionStorage } from '@/utils/sessionStorage';
 import { acquireLock, getLock, releaseLock } from '@/utils/lock';
-import { getDeviceType } from '@/utils/device';
+import { useDevice } from '@/app/composables/useDevice';
 export default {
     name: 'IndexPage',
     components: {
@@ -129,9 +129,7 @@ export default {
         /**
          * loading message
          */
-        const ifMobile=computed(()=>{
-            return getDeviceType()=='mobile';
-        });
+        const { deviceType, ifMobile } = useDevice();
         const loadingMsg = ref({});
         loadingMsg.value = {
             state: false,
@@ -139,10 +137,6 @@ export default {
             progress: -1
         }
         const themeColor = globalProperties.$themeColor;
-        /**
-         * get device type
-         */
-        const deviceType = globalProperties.$deviceType;
         const userName = getCookie('userName');
         const userProfileUrl = getCookie('userProfileUrl');
         /**

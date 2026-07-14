@@ -3,9 +3,10 @@
  */
 import { ref, computed } from 'vue';
 import { globalProperties } from '@/main';
+import { useDevice } from '@/app/composables/useDevice';
 
 export function useDeveloperState() {
-  const ifMobile = computed(() => globalProperties.$deviceType === 'mobile');
+  const { ifMobile } = useDevice();
   const themeColor = computed(() => globalProperties.$themeColor || '#667eea');
   const currentDoc = ref('');
   const expandedKeys = ref(new Set());
@@ -21,4 +22,3 @@ export function useDeveloperState() {
     mobileDrawerOpen,
   };
 }
-

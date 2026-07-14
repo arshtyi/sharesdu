@@ -1,7 +1,7 @@
 /**
  * 统一导出所有 composables
  */
-export { useDevice } from './useDevice';
+export { useDevice, deviceTypeState } from './useDevice';
 export { useRouteState } from './useRouteState';
 export { useUser } from './useUser';
 export { useNavigation } from './useNavigation';

@@ -5,12 +5,13 @@ import { ref } from 'vue';
 import { getCookie } from '@/utils/cookie';
 import { globalProperties } from '@/main';
 import { normPeerId } from '@/utils/chatIds';
+import { useDevice } from '@/app/composables/useDevice';
 
 export function useChatState() {
   const selfId = getCookie('userId');
   const selfName = getCookie('userName');
   const themeColor = globalProperties.$themeColor;
-  const deviceType = globalProperties.$deviceType;
+  const { deviceType } = useDevice();
   
   const navVisible = ref(false);
   const drawer = ref(true);

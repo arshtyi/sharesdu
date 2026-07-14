@@ -93,13 +93,13 @@
     </div>
     <nav v-if="ifShowBottomNav" class="bottom-nav-container" aria-label="主导航">
       <v-spacer />
-      <v-btn aria-label="首页" :aria-current="isIndexActive ? 'page' : undefined" @click="openUrl('#/index')" variant="text" :color="themeColor" :class="{ 'bottom-nav-btn--active': isIndexActive }" class="bottom-nav-btn" :style="isIndexActive ? { backgroundColor: activeBgColor } : {}"><v-icon icon="mdi-home" size="22" /><span>首页</span></v-btn>
+      <v-btn aria-label="首页" :aria-current="isIndexActive ? 'page' : undefined" @click="navigateToRoute('IndexPage')" variant="text" :color="themeColor" :class="{ 'bottom-nav-btn--active': isIndexActive }" class="bottom-nav-btn" :style="isIndexActive ? { backgroundColor: activeBgColor } : {}"><v-icon icon="mdi-home" size="22" /><span>首页</span></v-btn>
       <v-spacer />
-      <v-btn aria-label="AI 问答" :aria-current="isAgentActive ? 'page' : undefined" @click="openUrl('#/agent')" variant="text" :color="themeColor" :class="{ 'bottom-nav-btn--active': isAgentActive }" class="bottom-nav-btn" :style="isAgentActive ? { backgroundColor: activeBgColor } : {}"><v-icon icon="mdi-robot-outline" size="22" /><span>AI问答</span></v-btn>
+      <v-btn aria-label="AI 问答" :aria-current="isAgentActive ? 'page' : undefined" @click="navigateToRoute('AgentPage')" variant="text" :color="themeColor" :class="{ 'bottom-nav-btn--active': isAgentActive }" class="bottom-nav-btn" :style="isAgentActive ? { backgroundColor: activeBgColor } : {}"><v-icon icon="mdi-robot-outline" size="22" /><span>AI问答</span></v-btn>
       <v-spacer />
-      <v-btn aria-label="微服务" :aria-current="isServiceActive ? 'page' : undefined" @click="openUrl('#/service')" variant="text" :color="themeColor" :class="{ 'bottom-nav-btn--active': isServiceActive }" class="bottom-nav-btn" :style="isServiceActive ? { backgroundColor: activeBgColor } : {}"><v-icon icon="mdi-view-grid" size="22" /><span>微服务</span></v-btn>
+      <v-btn aria-label="微服务" :aria-current="isServiceActive ? 'page' : undefined" @click="navigateToRoute('ServicePage')" variant="text" :color="themeColor" :class="{ 'bottom-nav-btn--active': isServiceActive }" class="bottom-nav-btn" :style="isServiceActive ? { backgroundColor: activeBgColor } : {}"><v-icon icon="mdi-view-grid" size="22" /><span>微服务</span></v-btn>
       <v-spacer />
-      <v-btn aria-label="我的" :aria-current="isSelfActive ? 'page' : undefined" @click="openUrl('#/self')" variant="text" :color="themeColor" :class="{ 'bottom-nav-btn--active': isSelfActive }" class="bottom-nav-btn" :style="isSelfActive ? { backgroundColor: activeBgColor } : {}"><v-icon icon="mdi-account" size="22" /><span>我的</span></v-btn>
+      <v-btn aria-label="我的" :aria-current="isSelfActive ? 'page' : undefined" @click="navigateToRoute('SelfPage')" variant="text" :color="themeColor" :class="{ 'bottom-nav-btn--active': isSelfActive }" class="bottom-nav-btn" :style="isSelfActive ? { backgroundColor: activeBgColor } : {}"><v-icon icon="mdi-account" size="22" /><span>我的</span></v-btn>
       <v-spacer />
     </nav>
     <!-- 创作选择底部弹出 -->
@@ -291,8 +291,8 @@ export default {
     };
     
     // 其他方法
-    const openUrl = (url) => {
-      openPage("url", { url: url });
+    const navigateToRoute = (name) => {
+      router.push({ name });
     };
     
     // 底部导航选中状态
@@ -430,7 +430,7 @@ export default {
       toServicePage,
       toRagChatPage,
       showDialog: () => {},
-      openUrl,
+      navigateToRoute,
       hexToRgba,
       // 底部导航选中状态
       isIndexActive,

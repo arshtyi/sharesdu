@@ -3,13 +3,14 @@
  */
 import { ref, computed } from 'vue';
 import { globalProperties } from '@/main';
+import { useDevice } from '@/app/composables/useDevice';
 
 export function useWelcomeState() {
   // 主题颜色
   const themeColor = globalProperties.$themeColor;
   
   // 设备类型
-  const deviceType = globalProperties.$deviceType;
+  const { deviceType } = useDevice();
   
   // 对话框状态
   const ifShowLogin = ref(false);
@@ -55,4 +56,3 @@ export function useWelcomeState() {
     setDownloadState,
   };
 }
-

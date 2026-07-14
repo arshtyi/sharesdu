@@ -4,7 +4,7 @@
 </template>
 
 <script setup>
-import { globalProperties } from '@/main';
+import { useDevice } from '@/app/composables/useDevice';
 import SelfPagePc from './pc.vue';
 import SelfPageMobile from './mobile.vue';
 
@@ -12,5 +12,5 @@ defineOptions({
   name: 'SelfPage',
 });
 
-const deviceType = globalProperties.$deviceType;
+const { deviceType } = useDevice();
 </script>

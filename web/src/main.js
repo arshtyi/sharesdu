@@ -8,7 +8,7 @@ import { createVuetify } from "vuetify";
 import {
   VAlert, VApp, VAppBar, VAppBarTitle, VAutocomplete, VAvatar, VBadge,
   VBottomSheet, VBtn, VBtnToggle, VCard, VCardActions, VCardText, VCardTitle,
-  VCarousel, VCarouselItem, VChip, VColorPicker, VDataTable, VDialog, VDivider,
+  VCarousel, VCarouselItem, VCheckbox, VChip, VColorPicker, VDataTable, VDialog, VDivider,
   VEmptyState, VExpansionPanel, VExpansionPanelText, VExpansionPanelTitle,
   VExpansionPanels, VIcon, VImg, VList, VListGroup, VListItem, VListItemTitle,
   VMenu, VNavigationDrawer, VOtpInput, VOverlay, VProgressCircular,
@@ -17,13 +17,13 @@ import {
   VTabsWindow, VTabsWindowItem, VTextField, VTextarea, VTooltip,
 } from "vuetify/components";
 import store from './store';
-import { sharesduMdi } from '@/plugins/sharesduMdi';
+import { sharesduMdi, sharesduMdiAliases } from '@/plugins/sharesduMdi';
+import { deviceTypeState } from '@/app/composables/useDevice';
 
 /**
  * import global css style   
  */
 import './style/global.css';
-import { getDeviceType } from './utils/device';
 import { adjustAlpha } from './utils/color';
 import { selfDefinedSessionStorage } from './utils/sessionStorage';
 import { selfDefineLocalStorage } from './utils/localStorage';
@@ -34,7 +34,7 @@ const vuetify = createVuetify({
   components: {
     VAlert, VApp, VAppBar, VAppBarTitle, VAutocomplete, VAvatar, VBadge,
     VBottomSheet, VBtn, VBtnToggle, VCard, VCardActions, VCardText, VCardTitle,
-    VCarousel, VCarouselItem, VChip, VColorPicker, VDataTable, VDialog, VDivider,
+    VCarousel, VCarouselItem, VCheckbox, VChip, VColorPicker, VDataTable, VDialog, VDivider,
     VEmptyState, VExpansionPanel, VExpansionPanelText, VExpansionPanelTitle,
     VExpansionPanels, VIcon, VImg, VList, VListGroup, VListItem, VListItemTitle,
     VMenu, VNavigationDrawer, VOtpInput, VOverlay, VProgressCircular,
@@ -44,6 +44,7 @@ const vuetify = createVuetify({
   },
   icons: {
     defaultSet: 'mdi',
+    aliases: sharesduMdiAliases,
     sets: { mdi: sharesduMdi },
   },
 })
@@ -110,11 +111,10 @@ try{
   selfDefinedSessionStorage.removeItem("test");
 }
 
-const deviceType=getDeviceType();
 /**
  * mobile/desktop  
  */
-app.config.globalProperties.$deviceType=deviceType;
+app.config.globalProperties.$deviceType=deviceTypeState;
 /**
  * Get the current theme color,default from config   
  */

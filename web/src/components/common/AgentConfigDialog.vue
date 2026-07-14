@@ -20,7 +20,13 @@
         <div class="text-small mb-3" style="color: #8a8a8a;">
           默认值已提高，低频参数收进高级配置。
         </div>
-        <v-radio-group v-model="draft.storageMode" inline label="API Key 保存方式" density="compact">
+        <v-radio-group
+          v-model="draft.storageMode"
+          inline
+          label="API Key 保存方式"
+          density="compact"
+          color="var(--theme-color)"
+        >
           <v-radio label="仅本次会话" value="session" />
           <v-radio label="浏览器持久保存" value="local" />
         </v-radio-group>

@@ -7,6 +7,7 @@ export { default as ArticleList } from './ArticleList.vue';
 export { default as PostList } from './PostList.vue';
 export { default as CourseList } from './CourseList.vue';
 export { default as SectionList } from './SectionList.vue';
+export { default as ServiceList } from './ServiceList.vue';
+export { default as DesktopDiscoverySidebar } from './DesktopDiscoverySidebar.vue';
 export { default as LoadMoreButton } from './LoadMoreButton.vue';
-
 

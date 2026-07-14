@@ -4,6 +4,7 @@
 import { ref, computed } from 'vue';
 import { globalProperties } from '@/main';
 import { getCookie } from '@/utils/cookie';
+import { useDevice } from '@/app/composables/useDevice';
 
 export function useCourseState() {
   // 用户信息
@@ -13,12 +14,12 @@ export function useCourseState() {
   
   // 主题颜色和设备类型
   const themeColor = globalProperties.$themeColor;
-  const deviceType = globalProperties.$deviceType;
+  const { deviceType } = useDevice();
   
   // 尺寸配置
-  const smallStarSize = deviceType === 'mobile' ? 20 : 30;
-  const barHeight = deviceType === 'mobile' ? 8 : 11;
-  const bigScoreBarSize = deviceType === 'mobile' ? 30 : 40;
+  const smallStarSize = computed(() => deviceType.value === 'mobile' ? 20 : 30);
+  const barHeight = computed(() => deviceType.value === 'mobile' ? 8 : 11);
+  const bigScoreBarSize = computed(() => deviceType.value === 'mobile' ? 30 : 40);
   
   // 对话框状态
   const ifShowCommentEditor = ref(false);
@@ -88,4 +89,3 @@ export function useCourseState() {
     setPosterDisplayerState,
   };
 }
-

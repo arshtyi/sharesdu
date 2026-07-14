@@ -81,6 +81,8 @@ import BrandedImagePlaceholder from './BrandedImagePlaceholder.vue';
 
 export default {
   name: 'ImgCard',
+  inheritAttrs: false,
+  emits: ['delete_img', 'click'],
   components: {
     BrandedImagePlaceholder,
   },

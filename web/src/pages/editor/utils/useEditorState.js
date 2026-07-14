@@ -3,11 +3,12 @@
  */
 import { ref, computed } from 'vue';
 import { globalProperties } from '@/main';
+import { useDevice } from '@/app/composables/useDevice';
 
 export function useEditorState() {
   // 主题颜色和设备类型
   const themeColor = globalProperties.$themeColor;
-  const deviceType = globalProperties.$deviceType;
+  const { deviceType } = useDevice();
   const apiUrl = globalProperties.$apiUrl;
   
   // 编辑器类型（html/md）
@@ -62,5 +63,4 @@ export function useEditorState() {
     setEditorType,
   };
 }
-
 

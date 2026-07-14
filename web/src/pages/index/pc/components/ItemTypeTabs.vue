@@ -1,26 +1,17 @@
 <template>
   <!-- PC 端显示 -->
-  <div class="row-center" :style="themeColorStyle">
+  <div class="row-center" :style="themeColorStyle" role="tablist" aria-label="首页内容类型">
     <button 
+      v-for="tab in tabs"
+      :key="tab.value"
       class="tab-button"
-      :class="{ 'tab-button--active': modelValue === 'article' }"
-      @click="handleItemTypeChange('article')"
+      :class="{ 'tab-button--active': modelValue === tab.value }"
+      type="button"
+      role="tab"
+      :aria-selected="modelValue === tab.value"
+      @click="handleItemTypeChange(tab.value)"
     >
-      文章
-    </button>
-    <button 
-      class="tab-button"
-      :class="{ 'tab-button--active': modelValue === 'post' }"
-      @click="handleItemTypeChange('post')"
-    >
-      帖子
-    </button>
-    <button 
-      class="tab-button"
-      :class="{ 'tab-button--active': modelValue === 'course' }"
-      @click="handleItemTypeChange('course')"
-    >
-      课程
+      {{ tab.label }}
     </button>
   </div>
 </template>
@@ -32,7 +23,7 @@ const props = defineProps({
   modelValue: {
     type: String,
     required: true,
-    validator: (value) => ['article', 'post', 'course', 'section'].includes(value),
+    validator: (value) => ['article', 'post', 'course', 'section', 'service'].includes(value),
   },
   ifMobile: {
     type: Boolean,
@@ -46,13 +37,15 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue']);
 
-const localItemType = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value),
-});
+const tabs = [
+  { value: 'article', label: '文章' },
+  { value: 'post', label: '帖子' },
+  { value: 'course', label: '课程' },
+  { value: 'section', label: '板块' },
+  { value: 'service', label: '微服务' },
+];
 
 const handleItemTypeChange = (value) => {
-  localItemType.value = value;
   emit('update:modelValue', value);
 };
 
@@ -71,12 +64,12 @@ const themeColorStyle = computed(() => ({
     width: fit-content;
     justify-content: center;
     align-items: center;
-    gap: 8px;
+    gap: 2px;
   }
 
   .tab-button {
     position: relative;
-    padding: 8px 16px;
+    padding: 8px 11px;
     background: transparent;
     border: none;
     color: rgba(255, 255, 255, 0.7);
@@ -86,7 +79,7 @@ const themeColorStyle = computed(() => ({
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 4px;
     outline: none;
-    min-width: 60px;
+    min-width: 54px;
     text-align: center;
   }
 
@@ -195,5 +188,4 @@ const themeColorStyle = computed(() => ({
   }
 }
 </style>
-
 

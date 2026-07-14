@@ -64,6 +64,7 @@
 import AlertButton from '@/components/report/AlertButton.vue';
 import AvatarName from '@/components/common/AvatarName';
 import { globalProperties } from '@/main';
+import { useDevice } from '@/app/composables/useDevice';
 import { formatRelativeTime, extractImageLinksInBrackets } from '@/utils/other';
 import { removeImageLinksInBrackets } from '@/utils/imageUtils';
 import WithLinkContainer from '../common/WithLinkContainer.vue';
@@ -96,9 +97,10 @@ export default {
     },
     setup() {
         const themeColor=globalProperties.$themeColor;
+        const { deviceType } = useDevice();
         return {
             themeColor,
-            deviceType: globalProperties.$deviceType,
+            deviceType,
         }
     },
     data() {

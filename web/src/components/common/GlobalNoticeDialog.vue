@@ -57,7 +57,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import { globalProperties } from '@/main';
+import { useDevice } from '@/app/composables/useDevice';
 
 const props = defineProps({
   notice: {
@@ -72,7 +72,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'dont-show']);
 
-const isMobile = computed(() => globalProperties.$deviceType === 'mobile');
+const { ifMobile: isMobile } = useDevice();
 
 // 通知类型配置
 const typeConfig = {

@@ -29,6 +29,7 @@
 <script>
 import { downloadResource } from '@/api/modules/resource';
 import { globalProperties } from '@/main';
+import { useDevice } from '@/app/composables/useDevice';
 import { getCancelLoadMsg, getLoadMsg, getNormalErrorAlert, getNormalSuccessAlert } from '@/utils/other';
 
 export default {
@@ -44,7 +45,7 @@ export default {
     },
     setup(){
         const themeColor=globalProperties.$themeColor;
-        const deviceType=globalProperties.$deviceType;
+        const { deviceType } = useDevice();
         return {
             themeColor,
             deviceType,

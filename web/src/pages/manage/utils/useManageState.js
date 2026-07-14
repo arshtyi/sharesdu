@@ -3,13 +3,14 @@
  */
 import { ref, computed } from 'vue';
 import { globalProperties } from '@/main';
+import { useDevice } from '@/app/composables/useDevice';
 
 export function useManageState() {
   // 主题颜色
   const themeColor = globalProperties.$themeColor;
   
   // 设备类型
-  const deviceType = globalProperties.$deviceType;
+  const { deviceType } = useDevice();
   
   // 导航状态
   const drawer = ref(true);
@@ -84,4 +85,3 @@ export function useManageState() {
     setBlockUserListState,
   };
 }
-

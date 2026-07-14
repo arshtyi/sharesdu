@@ -4,7 +4,7 @@
     <post-item-mobile v-else :clickable="clickable" :init-data="initData" :if-parent-author="ifParentAuthor" :search-query="searchQuery" @alert="alert" @set-post-top="setPostTop"></post-item-mobile>
 </template>
 <script>
-import { globalProperties } from '@/main';
+import { useDevice } from '@/app/composables/useDevice';
 import PostItemPc from './pc.vue';
 import PostItemMobile from './mobile.vue';
 
@@ -29,7 +29,7 @@ export default {
         }
     },
     setup() {
-        const deviceType = globalProperties.$deviceType;
+        const { deviceType } = useDevice();
         return {
             deviceType,
         }
@@ -51,4 +51,3 @@ export default {
 <style scoped>
 /* 主入口组件不需要样式，样式在各子组件中定义 */
 </style>
-

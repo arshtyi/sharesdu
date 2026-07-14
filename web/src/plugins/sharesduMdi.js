@@ -1,4 +1,5 @@
-import { defineComponent, h } from 'vue';
+import { defineComponent, h, mergeProps } from 'vue';
+import { aliases as vuetifyMdiSvgAliases } from 'vuetify/iconsets/mdi-svg';
 
 // Generated from the icon names used by the application. Keeping only the
 // actual SVG paths avoids downloading the 1.25 MiB MDI webfont or importing
@@ -195,11 +196,17 @@ export const SharesduSvgIcon = defineComponent({
     return () => {
       const source = Array.isArray(props.icon) ? props.icon : (paths[props.icon] || props.icon);
       const iconPaths = Array.isArray(source) ? source : [source];
-      return h(props.tag, { ...attrs, style: null }, [
+      // Vuetify passes dynamic colors and numeric sizes through attrs.style.
+      // mergeProps keeps those class/style values while matching VSvgIcon's
+      // fallthrough behavior. Object spread + `style: null` erased them and
+      // made custom-colored icons black and differently sized icons identical.
+      return h(props.tag, mergeProps(attrs, { style: null }), [
         h('svg', {
           class: 'v-icon__svg',
           xmlns: 'http://www.w3.org/2000/svg',
           viewBox: '0 0 24 24',
+          fill: 'currentColor',
+          focusable: 'false',
           role: 'img',
           'aria-hidden': 'true',
         }, iconPaths.filter(Boolean).map((path) => h('path', {
@@ -212,4 +219,8 @@ export const SharesduSvgIcon = defineComponent({
 });
 
 export const sharesduMdi = { component: SharesduSvgIcon };
+// Vuetify's built-in controls use aliases such as $radioOff, $checkboxOn,
+// $ratingHalf and $dropdown. The webfont aliases point to class names that are
+// intentionally absent from this SVG-only build, so use the SVG alias table.
+export const sharesduMdiAliases = vuetifyMdiSvgAliases;
 export const sharesduIconPaths = paths;

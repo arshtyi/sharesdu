@@ -43,7 +43,7 @@
 import LikeButton from '@/components/common/LikeButton.vue';
 import AlertButton from '@/components/report/AlertButton.vue';
 import DeleteButton from '@/components/common/DeleteButton.vue';
-import { getDeviceType } from '@/utils/device';
+import { useDevice } from '@/app/composables/useDevice';
 
 defineProps({
   post: {
@@ -59,7 +59,7 @@ defineProps({
     default: null,
   },
 });
-const ifMobile=getDeviceType()=='mobile';
+const { ifMobile } = useDevice();
 defineEmits(['delete-post', 'alert', 'set-loading', 'show-comment-editor']);
 </script>
 
@@ -161,5 +161,4 @@ defineEmits(['delete-post', 'alert', 'set-loading', 'show-comment-editor']);
   }
 }
 </style>
-
 

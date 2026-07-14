@@ -3,6 +3,7 @@
  */
 import { ref, computed } from 'vue';
 import { globalProperties } from '@/main';
+import { useDevice } from '@/app/composables/useDevice';
 
 export function useSelfState() {
   // 导航抽屉状态
@@ -14,7 +15,7 @@ export function useSelfState() {
   const choose = ref('info');
   
   // 设备类型和主题颜色
-  const deviceType = globalProperties.$deviceType;
+  const { deviceType } = useDevice();
   const themeColor = globalProperties.$themeColor;
   
   // 项目类型
@@ -58,4 +59,3 @@ export function useSelfState() {
     setColorSelectorCardState,
   };
 }
-

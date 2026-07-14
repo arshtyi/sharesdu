@@ -122,7 +122,7 @@ import AlertButton from '@/components/report/AlertButton.vue';
 import DeleteButton from '@/components/common/DeleteButton.vue';
 import StarButton from '@/components/star/StarButton.vue';
 import LikeButton from '@/components/common/LikeButton.vue';
-import { getDeviceType } from '@/utils/device';
+import { useDevice } from '@/app/composables/useDevice';
 import { copyMarkdownContent, downloadMarkdownContent } from '@/utils/markdownExport';
 
 const props = defineProps({
@@ -150,7 +150,7 @@ const props = defineProps({
 
 const emit = defineEmits(['edit', 'delete', 'comment', 'alert', 'set-loading']);
 
-const ifMobile = getDeviceType() === 'mobile';
+const { ifMobile } = useDevice();
 const ifShowMobileDownloadDialog = ref(false);
 
 function handleCopyMarkdown() {
@@ -158,7 +158,7 @@ function handleCopyMarkdown() {
 }
 
 function handleDownloadMarkdown() {
-  if (ifMobile) {
+  if (ifMobile.value) {
     ifShowMobileDownloadDialog.value = true;
     return;
   }

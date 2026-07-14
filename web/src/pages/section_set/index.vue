@@ -5,11 +5,11 @@
 </template>
 
 <script setup>
-import { globalProperties } from '@/main';
+import { useDevice } from '@/app/composables/useDevice';
 import SectionSetPagePc from './pc/index.vue';
 import SectionSetPageMobile from './mobile/index.vue';
 
-const deviceType = globalProperties.$deviceType;
+const { deviceType } = useDevice();
 
 defineOptions({
   name: 'SectionSetPage'
@@ -19,4 +19,3 @@ defineOptions({
 <style scoped>
 /* 主入口组件不需要样式，样式在各子组件中定义 */
 </style>
-

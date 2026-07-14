@@ -52,7 +52,7 @@
         :disabled="!(valUserName(registerData.userName) && valPassWord(registerData.passwd) && valPassWord(registerData.passwdConfirm) && registerData.passwd === registerData.passwdConfirm)"
         size="large"
         rounded="lg">
-        <v-icon size="20" style="margin-right:5px;margin-top:3px;" class="mr-2">mdi-arrow-right</v-icon>
+        <v-icon size="20" class="mr-2">mdi-arrow-right</v-icon>
         下一步
       </v-btn>
     </template>
@@ -400,4 +400,3 @@ const valPassWord = (passWord) => {
   }
 }
 </style>
-

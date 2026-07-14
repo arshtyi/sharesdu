@@ -63,6 +63,7 @@
 </template>
 <script>
 import { globalProperties } from '@/main';
+import { useDevice } from '@/app/composables/useDevice';
 import AvatarName from '@/components/common/AvatarName';
 import { ref } from 'vue';
 import { copy, extractImageLinksInBrackets, getLinkInPost, getNormalErrorAlert, getNormalWarnAlert, openPage } from '@/utils/other';
@@ -99,7 +100,7 @@ export default {
     },
     setup() {
         const themeColor = globalProperties.$themeColor;
-        const deviceType = globalProperties.$deviceType;
+        const { deviceType } = useDevice();
         const loadState = ref(false);
         const setLoadState = (state) => {
             loadState.value = state;
@@ -388,4 +389,3 @@ export default {
     margin-right: 16px;
 }
 </style>
-

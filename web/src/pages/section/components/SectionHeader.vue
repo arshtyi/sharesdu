@@ -219,7 +219,7 @@ import { formatRelativeTime } from '@/utils/other';
 import { defineAsyncComponent } from 'vue';
 import ArticleDisplay from '@/components/article/ArticleDisplay.vue';
 import LoadingContentWrapper from '@/components/common/LoadingContentWrapper.vue';
-import { getDeviceType } from '@/utils/device';
+import { useDevice } from '@/app/composables/useDevice';
 
 const ImgCard = defineAsyncComponent(() => import('@/components/common/ImgCard.vue'));
 
@@ -249,7 +249,7 @@ const props = defineProps({
 defineEmits(['set-section-top']);
 
 const showDetailDialog = ref(false);
-const deviceType = getDeviceType();
+const { deviceType } = useDevice();
 
 const formattedPublishTime = computed(() => {
   return formatRelativeTime(props.section.publishTime);
@@ -265,7 +265,7 @@ const detailContent = computed(() => {
 // 封面大小（响应式）
 const coverSize = computed(() => {
   // 可以根据需要调整
-  return deviceType === 'mobile' ? 80 : 100;
+  return deviceType.value === 'mobile' ? 80 : 100;
 });
 </script>
 

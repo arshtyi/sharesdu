@@ -25,7 +25,7 @@
 <script setup>
 import AlertButton from '@/components/report/AlertButton.vue';
 import ManageButton from '@/components/manage/ManageButton.vue';
-import { getDeviceType } from '@/utils/device';
+import { useDevice } from '@/app/composables/useDevice';
 
 defineProps({
   course: {
@@ -41,7 +41,7 @@ defineProps({
     default: false,
   },
 });
-const ifMobile=getDeviceType()=='mobile';
+const { ifMobile } = useDevice();
 defineEmits(['show-post']);
 </script>
 
@@ -111,4 +111,3 @@ defineEmits(['show-post']);
   }
 }
 </style>
-

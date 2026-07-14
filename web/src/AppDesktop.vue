@@ -17,7 +17,7 @@
       <v-spacer v-if="ifPCShowIndexTypeTab"></v-spacer>
       <search-input id="search-box-listen" v-model="searchContent" :borderColor="navIconColor"
         :boxShadowColor="hexToRgba(navIconColor, 0.5)" :placeholderColor="navIconColor"
-        :inputStyle="{ 'border-radius': '20px', height: '35px',width: ifPCShowIndexTypeTab ? '300px' : '500px', 'padding-left': '15px' }"></search-input>
+        :inputStyle="{ 'border-radius': '20px', height: '35px',width: ifPCShowIndexTypeTab ? '260px' : '500px', 'padding-left': '15px' }"></search-input>
       <div class="search-btn-container">
         <v-btn id="search-btn" aria-label="搜索" @click="search" icon="mdi-magnify" variant="text" :color="navIconColor" size="35">
           <div class="icon-container">
@@ -44,7 +44,7 @@
       -->
 
       <v-btn 
-        v-if="ifShowService" 
+        v-if="ifShowService && !ifPCShowIndexTypeTab"
         @click="toServicePage" 
         :color="navIconColor" 
         :variant="navIconColor == '#ffffff' ? 'tonal' : 'text'"

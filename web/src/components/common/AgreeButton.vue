@@ -1,12 +1,12 @@
 <template>
-    <div class="full-row">
-        <v-radio-group :color="themeColor" density="compact" v-model="state">
-            <div style="display: flex;flex-direction: row;align-items: center;">
-                <v-radio style="font-size: 14px;max-width: 16px;" @click="state=state==='agree'?'disagree':'agree'" value="agree"></v-radio>
-                <div class="text-small text">{{ text }}</div>
-            </div>
-        </v-radio-group>
-    </div>
+  <v-checkbox
+    v-model="state"
+    :label="text"
+    :color="themeColor"
+    density="compact"
+    hide-details
+    class="agree-control text-small"
+  />
 </template>
 <script>
 import { globalProperties } from '@/main';
@@ -27,12 +27,12 @@ export default {
   },
   data(){
     return {
-        state: 'disagree'
+        state: false
     }
   },
   watch:{
     state(val){
-        this.$emit('agree', val==='agree');
+        this.$emit('agree', Boolean(val));
     }
   },
   methods:{
@@ -40,14 +40,18 @@ export default {
 }
 </script>
 <style scoped>
-.full-row{
-    max-height: 20px;
-    display: flex;
-    justify-content: center;
-    flex-direction: row;
-    margin-left: 5px;
+.agree-control {
+  flex: 0 0 auto;
+  margin: 0;
 }
-.text{
-    margin-left: 10px;
+
+.agree-control :deep(.v-selection-control) {
+  min-height: 32px;
+}
+
+.agree-control :deep(.v-label) {
+  font-size: 14px;
+  line-height: 20px;
+  opacity: 1;
 }
 </style>

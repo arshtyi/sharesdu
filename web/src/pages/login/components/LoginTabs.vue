@@ -4,14 +4,14 @@
       value="login" 
       class="custom-tab"
       :class="{ 'tab-active': nowTab === 'login' }">
-      <v-icon size="20" style="margin-right:5px;margin-top:3px;" class="tab-icon">mdi-login</v-icon>
+      <v-icon size="20" class="tab-icon">mdi-login</v-icon>
       <span class="tab-text">登录</span>
     </v-tab>
     <v-tab 
       value="register" 
       class="custom-tab"
       :class="{ 'tab-active': nowTab === 'register' }">
-      <v-icon size="20" style="margin-right:5px;margin-top:3px;" class="tab-icon">mdi-account-plus</v-icon>
+      <v-icon size="20" class="tab-icon">mdi-account-plus</v-icon>
       <span class="tab-text">注册</span>
     </v-tab>
   </v-tabs>
@@ -64,4 +64,3 @@ defineEmits(['update:nowTab']);
   font-size: 16px;
 }
 </style>
-

@@ -156,7 +156,7 @@ import AlertButton from '@/components/report/AlertButton.vue';
 import StarButton from '@/components/star/StarButton.vue';
 import LikeButton from '@/components/common/LikeButton.vue';
 import DeleteButton from '@/components/common/DeleteButton.vue';
-import { getDeviceType } from '@/utils/device';
+import { useDevice } from '@/app/composables/useDevice';
 import { globalProperties } from '@/main';
 import AvatarName from '@/components/common/AvatarName';
 defineProps({
@@ -182,7 +182,7 @@ defineProps({
   },
 });
 
-const ifMobile = getDeviceType() === 'mobile';
+const { ifMobile } = useDevice();
 const themeColor = globalProperties.$themeColor;
 
 defineEmits(['edit', 'publish-post', 'delete', 'alert', 'set-loading']);
@@ -329,4 +329,3 @@ defineEmits(['edit', 'publish-post', 'delete', 'alert', 'set-loading']);
   }
 }
 </style>
-

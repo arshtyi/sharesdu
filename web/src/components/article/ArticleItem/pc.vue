@@ -1,13 +1,20 @@
 <!-- PC 端文章项组件 -->
 <template>
-    <v-card class="card" :variant="data.ifTop?'variant':'none'" :color="data.ifTop?themeColor:'none'" @click="click()">
+    <v-card class="card" :class="{ 'card--home': homeLayout }" :variant="data.ifTop?'variant':'none'" :color="data.ifTop?themeColor:'none'" @click="click()">
         <v-chip v-if="data.ifTop" width="100%" variant="tonal" :color="themeColor" class="text-tiny-bold" style="border-radius: 0px;max-height: 28px;width: 100%;justify-content: center;">
             <v-icon size="20">mdi-format-vertical-align-top</v-icon>
             <span style="margin-left: 10px;" class="text-small-bold">置顶</span>
         </v-chip>
         <div class="container">
-            <img-card :width="140" :clickable="false" :height="130" class="img" :lazy-src="lazyImgUrl" :src="data.coverLink"
-                cover aspect-ratio="7/6" @click="handleImgClick"></img-card>
+            <div class="article-cover-slot">
+                <img-card
+                    :width="120"
+                    :clickable="false"
+                    :height="120"
+                    :src="data.coverLink"
+                    @click="handleImgClick"
+                ></img-card>
+            </div>
             <div class="row-div padding-left-5">
                 <div class="text-title title-container key-text">
                     <with-link-container :init-data="{'content':data.title,'keywords':this.searchQuery}" :clickable="false">
@@ -60,14 +67,16 @@ export default {
         searchQuery: {
             type: Array,
             default: () => [],
+        },
+        displayMode: {
+            type: String,
+            default: 'default',
         }
     },
     setup() {
-        const lazyImgUrl = globalProperties.$lazyImgUrl;
         const themeColor = globalProperties.$themeColor;
         return {
             themeColor,
-            lazyImgUrl,
         }
     },
     data() {
@@ -79,6 +88,11 @@ export default {
     components: {
         ImgCard: defineAsyncComponent(() => import('@/components/common/ImgCard.vue')),
         WithLinkContainer,
+    },
+    computed: {
+        homeLayout() {
+            return this.displayMode === 'home';
+        },
     },
     methods: {
         handleImgClick() {
@@ -104,6 +118,10 @@ export default {
     margin-top: 5px;
 }
 
+.card--home {
+    margin-top: 2px;
+}
+
 .container {
     padding: 5px;
     display: flex;
@@ -116,13 +134,13 @@ export default {
     flex-direction: column;
 }
 
-.img {
-    margin: 5px;
-    max-width: 150px;
-    max-height: 120px;
-    flex-shrink: 0;
-    border-radius: 4px;
-    overflow: hidden;
+/* 保留旧版 140px 封面列占位，只把图片本身裁成严格的 1:1。 */
+.article-cover-slot {
+    width: 142px;
+    height: 120px;
+    flex: 0 0 142px;
+    display: flex;
+    align-items: flex-start;
 }
 
 .title-container {
@@ -163,4 +181,3 @@ export default {
     margin-right: 20px;
 }
 </style>
-

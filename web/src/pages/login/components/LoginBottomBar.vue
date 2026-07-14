@@ -7,7 +7,7 @@
       density="compact" 
       variant="text"
       :color="themeColor">
-      <v-icon size="16" style="margin-top:1px;margin-right: 2px;" class="mr-1">
+      <v-icon size="16" class="mr-1">
         {{ loginMethod === 'userName' ? 'mdi-email' : 'mdi-account' }}
       </v-icon>
       {{ loginMethod === 'userName' ? '使用邮箱登录' : '使用用户名登录' }}
@@ -19,7 +19,7 @@
       density="compact" 
       variant="text"
       :color="themeColor">
-      <v-icon size="16" style="margin-top:1px;margin-right: 2px;" class="mr-1">
+      <v-icon size="16" class="mr-1">
         {{ registerMethod === 'email' ? 'mdi-key' : 'mdi-email' }}
       </v-icon>
       {{ registerMethod === 'email' ? '使用邀请码注册' : '使用邮箱注册' }}
@@ -80,4 +80,3 @@ defineEmits(['shift-login-method', 'shift-register-method', 'agree']);
   transform: translateX(2px);
 }
 </style>
-

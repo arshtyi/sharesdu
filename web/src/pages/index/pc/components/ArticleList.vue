@@ -11,6 +11,7 @@
         v-for="item in articleList" 
         :key="item.id" 
         :init-data="item"
+        display-mode="home"
       ></article-item>
     </template>
     <LoadMoreButton
@@ -88,5 +89,4 @@ defineEmits(['update:sortMethod', 'load-more']);
   }
 }
 </style>
-
 

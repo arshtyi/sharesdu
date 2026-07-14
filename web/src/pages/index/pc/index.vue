@@ -4,77 +4,62 @@
     </div>
   </v-dialog>
   <div class="full-screen">
-    <div class="row-center">
-      <v-spacer></v-spacer>
-      <div></div>
-      <v-spacer></v-spacer>
+    <div class="desktop-index-wrap">
       <v-pull-to-refresh 
         id="item-container" 
         :pull-down-threshold="64" 
         @load="handleRefresh" 
-        style="margin-top: 10px;"
       >
-        <transition name="tab-fade" mode="out-in">
-        <ArticleList
-          v-if="itemType === 'article'"
-            :key="'article'"
-          :article-list="articleList[articleSortMethod]"
-          :sort-method="articleSortMethod"
-          :theme-color="themeColor"
-          :if-mobile="ifMobile"
-          :all-load="allLoad.article[articleSortMethod]"
-          :loading="loading.article"
-          @update:sort-method="articleSortMethod = $event"
-          @load-more="handleLoadMore('article')"
-        />
-        <!-- 帖子页面：两列布局，左侧帖子列表，右侧板块列表 -->
-          <div v-else-if="itemType === 'post'" :key="'post'" class="post-layout-container">
-          <!-- 左侧：帖子列表 -->
-          <div class="post-list-column">
-            <PostList
-              :post-list="postList"
-              :theme-color="themeColor"
-              :all-load="allLoad.post"
-              :loading="loading.post"
-              @load-more="handleLoadMore('post')"
-            />
-          </div>
-          <!-- PC端分割线 -->
-          <div class="post-section-divider"></div>
-          <!-- 右侧：板块列表 -->
-          <div class="section-list-column">
-            <div class="section-list-header">
-              <span class="text-title-bold">热门板块</span>
-              <v-spacer></v-spacer>
-              <v-btn variant="text" append-icon="mdi-chevron-right" :color="themeColor" class="text-small" text="查看全部" @click="handleViewAllSections"></v-btn>
-            </div>
-            <SectionList
-              :section-list="sectionList"
-              :theme-color="themeColor"
-              :loading="loading.section"
-            />
-          </div>
+        <div class="desktop-index-shell">
+          <main class="desktop-main-column">
+            <transition name="tab-fade" mode="out-in">
+              <ArticleList
+                v-if="itemType === 'article'"
+                :key="'article'"
+                :article-list="articleList[articleSortMethod]"
+                :sort-method="articleSortMethod"
+                :theme-color="themeColor"
+                :if-mobile="ifMobile"
+                :all-load="allLoad.article[articleSortMethod]"
+                :loading="loading.article"
+                @update:sort-method="articleSortMethod = $event"
+                @load-more="handleLoadMore('article')"
+              />
+              <PostList
+                v-else-if="itemType === 'post'"
+                :key="'post'"
+                :post-list="postList"
+                :theme-color="themeColor"
+                :all-load="allLoad.post"
+                :loading="loading.post"
+                @load-more="handleLoadMore('post')"
+              />
+              <CourseList
+                v-else-if="itemType === 'course'"
+                :key="'course'"
+                :course-list="courseList"
+                :theme-color="themeColor"
+                :all-load="allLoad.course"
+                :loading="loading.course"
+                @load-more="handleLoadMore('course')"
+              />
+              <SectionList
+                v-else-if="itemType === 'section'"
+                :key="'section'"
+                :section-list="sectionList"
+                :theme-color="themeColor"
+                :loading="loading.section"
+              />
+              <ServiceList v-else-if="itemType === 'service'" :key="'service'" />
+            </transition>
+          </main>
+          <DesktopDiscoverySidebar
+            :section-list="sectionList"
+            :current-type="itemType"
+            @select-type="itemType = $event"
+          />
         </div>
-        <CourseList
-            v-else-if="itemType === 'course'"
-            :key="'course'"
-          :course-list="courseList"
-          :theme-color="themeColor"
-          :all-load="allLoad.course"
-          :loading="loading.course"
-          @load-more="handleLoadMore('course')"
-        />
-        <SectionList
-            v-else-if="itemType === 'section'"
-            :key="'section'"
-          :section-list="sectionList"
-          :theme-color="themeColor"
-          :loading="loading.section"
-        />
-        </transition>
       </v-pull-to-refresh>
-      <v-spacer></v-spacer>
-      <v-spacer></v-spacer>
     </div>
   </div>
 </template>
@@ -83,8 +68,15 @@
 import { watch, onMounted, onUnmounted, nextTick, computed, inject, onBeforeMount } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { VPullToRefresh } from 'vuetify/lib/labs/components.mjs';
-import { isElementAtBottom, openPage } from '@/utils/other';
-import { ArticleList, PostList, CourseList, SectionList } from './components';
+import { isElementAtBottom } from '@/utils/other';
+import {
+  ArticleList,
+  PostList,
+  CourseList,
+  SectionList,
+  ServiceList,
+  DesktopDiscoverySidebar,
+} from './components';
 import { useIndexState, useIndexData, useIndexLoad, useIndexRestore } from '../utils';
 //itemtab由AppDesktop提供
 // 定义组件名称
@@ -191,7 +183,9 @@ const { refresh, loadMore, restoreScrollAndLoad, canLoadMore } = useIndexLoad(
 
 // 处理刷新
 const handleRefresh = async ({ done }) => {
-  await refresh(itemType.value);
+  if (itemType.value !== 'service') {
+    await refresh(itemType.value);
+  }
   done('ok');
 };
 
@@ -231,6 +225,8 @@ watch(itemType, (newVal) => {
         handleLoadMore('section');
       }
       break;
+    case 'service':
+      break;
   }
 }, { immediate: true });
 
@@ -239,13 +235,16 @@ watch(articleSortMethod, (newVal, oldVal) => {
   if (newVal === oldVal) {
     return;
   }
-  if (articleList.value[articleSortMethod.value].length === 0) {
-    handleLoadMore(itemType.value);
+  if (itemType.value === 'article' && articleList.value[articleSortMethod.value].length === 0) {
+    handleLoadMore('article');
   }
 });
 
 // 滚动加载
 const glideLoad = () => {
+  if (!['article', 'post', 'course'].includes(itemType.value)) {
+    return;
+  }
   // 防止在其他加载未完成时加载
   if (!canLoadMore()) {
     return;
@@ -293,8 +292,10 @@ onBeforeMount(async () => {
       await handleLoadMore('section');
     }
     
-    // 先加载第一页数据（快速显示）
-    await handleLoadMore(itemType.value);
+    // 静态微服务目录无需调用分页 API
+    if (itemType.value !== 'service') {
+      await handleLoadMore(itemType.value);
+    }
     // 恢复滚动位置并加载到目标页码
     const targetPageNum = getTargetPageNum(
       itemType.value,
@@ -352,8 +353,15 @@ onMounted(async () => {
     if (itemType.value === 'post' && sectionList.value.length === 0) {
       await handleLoadMore('section');
     }
-    await handleLoadMore(itemType.value);
+    if (itemType.value !== 'service') {
+      await handleLoadMore(itemType.value);
+    }
     restoreComplete.value = true;
+  }
+
+  // 发现侧栏在首次进入和状态恢复时都需要板块数据。
+  if (sectionList.value.length === 0) {
+    await handleLoadMore('section');
   }
 
   ifMounted.value = true;
@@ -372,9 +380,6 @@ onUnmounted(() => {
   }
 });
 
-const handleViewAllSections = () => {
-  openPage('router', { name: 'SectionSetPage' });
-};
 // 暴露方法供外部调用
 defineExpose({
   addPost,
@@ -386,7 +391,8 @@ defineExpose({
 @media screen and (min-width: 1000px) {
   .full-screen {
     width: 100%;
-    height: 100%;
+    min-height: 100%;
+    background: #fff;
   }
 
   .dialog-card-container {
@@ -394,75 +400,40 @@ defineExpose({
     justify-content: center;
   }
 
-  .row-center {
-    display: flex;
-    flex-direction: row;
-    width: 100vw;
-    justify-content: center;
-  }
-
-  /* 帖子页面两列布局 */
-  .post-layout-container {
-    display: flex;
-    flex-direction: row;
-    width: 1200px;
-    max-width: 1200px;
-    gap: 0;
-    margin: 0 auto;
-    padding: 0 16px;
-  }
-
-  .post-list-column {
-    flex: 1;
-    min-width: 0; /* 允许 flex 子元素收缩 */
-  }
-
-  .post-section-divider {
-    width: 1px;
-    background-color: #e0e0e0;
-    flex-shrink: 0;
-  }
-
-  .section-list-column {
-    width: 300px;
-    flex-shrink: 0;
-    background-color: white;
-    border-radius: 8px;
-    padding: 18px;
-    position: sticky;
-    max-height: calc(100vh - 80px);
-  }
-
-  .section-list-header {
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  }
-
-  .section-list-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #333;
-    margin: 0;
-  }
-
-  /* 右侧栏中的 SectionList 样式调整 */
-  .section-list-column .item-container {
+  .desktop-index-wrap {
     width: 100%;
-    margin-bottom: 0;
+    padding: 10px 24px 56px;
+    box-sizing: border-box;
   }
 
-  /* 右侧栏中的板块卡片调整为单列显示，并拉开卡片之间的间距 */
-  .section-list-column :deep(.section-grid-container) {
-    flex-direction: column;
-    gap: 18px;
+  .desktop-index-wrap :deep(.v-pull-to-refresh) {
+    width: 100%;
   }
 
-  .section-list-column :deep(.section-card) {
-    width: 100% !important;
+  .desktop-index-shell {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+    max-width: 1090px;
+    margin: 0 auto;
+    gap: 24px;
+  }
+
+  .desktop-main-column {
+    width: 750px;
+    min-width: 0;
+    flex-shrink: 0;
+  }
+
+  @media screen and (max-width: 1199px) {
+    .desktop-index-shell {
+      max-width: 750px;
+    }
+
+    .desktop-index-shell :deep(.discovery-sidebar) {
+      display: none;
+    }
   }
 }
 
@@ -503,14 +474,13 @@ defineExpose({
     justify-content: center;
   }
 
-  .row-center {
+  .desktop-index-wrap {
     display: flex;
-    flex-direction: row;
     width: 100vw;
     justify-content: center;
   }
 
-  .post-section-divider {
+  .desktop-index-shell :deep(.discovery-sidebar) {
     display: none;
   }
 }

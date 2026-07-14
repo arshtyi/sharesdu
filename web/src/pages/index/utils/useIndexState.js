@@ -1,11 +1,11 @@
 /**
  * IndexPage 状态管理 Composable
  */
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { getCookie } from '@/utils/cookie';
 import { selfDefinedSessionStorage } from '@/utils/sessionStorage';
-import { getDeviceType } from '@/utils/device';
 import { globalProperties } from '@/main';
+import { useDevice } from '@/app/composables/useDevice';
 
 export function useIndexState() {
   // 当前内容类型：article, post, course
@@ -24,15 +24,10 @@ export function useIndexState() {
   const lastPageNum = ref(null);
   
   // 是否为移动端
-  const ifMobile = computed(() => {
-    return getDeviceType() === 'mobile';
-  });
+  const { deviceType, ifMobile } = useDevice();
   
   // 主题颜色
   const themeColor = globalProperties.$themeColor;
-  
-  // 设备类型
-  const deviceType = globalProperties.$deviceType;
   
   // 用户信息
   const userId = getCookie('userId');
@@ -103,4 +98,3 @@ export function useIndexState() {
     saveState,
   };
 }
-

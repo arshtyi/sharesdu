@@ -4,7 +4,7 @@
     <section-item-mobile v-else :init-data="initData"></section-item-mobile>
 </template>
 <script>
-import { globalProperties } from '@/main';
+import { useDevice } from '@/app/composables/useDevice';
 import SectionItemPc from './pc.vue';
 import SectionItemMobile from './mobile.vue';
 
@@ -28,7 +28,7 @@ export default {
         }
     },
     setup() {
-        const deviceType = globalProperties.$deviceType;
+        const { deviceType } = useDevice();
         return {
             deviceType,
         }
