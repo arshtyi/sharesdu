@@ -88,7 +88,7 @@
     <div
       id="router-view-container" tabindex="-1"
       :style="{ 'width': '100vw', 'max-width': '100vw', 'margin-top': routerMarginTop, background: '#ffffff', 'margin-bottom': routerMarginBottom, 'flex': 1, 'min-height': 0, 'overflow-y': 'auto', position: 'relative' }">
-      <router-view id="router-view" :key="`${String($route.name)}:${JSON.stringify($route.params)}`" class="router-view" @alert="alert" @set_loading="setLoading"
+      <router-view id="router-view" :key="routeViewKey" class="router-view" @alert="alert" @set_loading="setLoading"
         @search_type_changed="handleSearchTypeChanged" />
     </div>
     <nav v-if="ifShowBottomNav" class="bottom-nav-container" aria-label="主导航">
@@ -174,7 +174,7 @@ export default {
     const showSplash = ref(false);
     
     // 路由状态
-    const { page, ifAvatarState } = useRouteState();
+    const { page, ifAvatarState, routeViewKey } = useRouteState();
     
     // 特殊页面状态（与帖子/文章等一致：显示 返回+首页+搜索+更多 的导航栏）
     const isSpecialPage = computed(() => {
@@ -380,6 +380,7 @@ export default {
       // 路由
       page,
       ifAvatarState,
+      routeViewKey,
       // 特殊页面
       isSpecialPage,
       showSpecialSearchInput,

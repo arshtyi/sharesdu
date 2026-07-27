@@ -102,7 +102,7 @@
     <div
       id="router-view-container" tabindex="-1"
       :style="{ 'width': '100%', 'max-width': '100%', 'margin-top': routerMarginTop, background: '#ffffff', 'margin-bottom': '10px', 'flex': 1, 'min-height': 0, 'overflow-y': 'auto', 'overflow-x': 'hidden', position: 'relative' }">
-      <router-view id="router-view" :key="`${String($route.name)}:${JSON.stringify($route.params)}`" class="router-view" @alert="alert" @set_loading="setLoading"
+      <router-view id="router-view" :key="routeViewKey" class="router-view" @alert="alert" @set_loading="setLoading"
         @search_type_changed="handleSearchTypeChanged" />
     </div>
   </v-app>
@@ -137,7 +137,7 @@ export default {
     const ifMobile = { value: false };
     
     // 路由状态
-    const { page, ifAvatarState } = useRouteState();
+    const { page, ifAvatarState, routeViewKey } = useRouteState();
     // 用户信息
     const { userId, userName } = useUser();
     
@@ -271,6 +271,7 @@ export default {
       // 路由
       page,
       ifAvatarState,
+      routeViewKey,
       // 用户
       userId,
       userName,
