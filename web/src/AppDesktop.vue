@@ -17,7 +17,8 @@
       <v-spacer v-if="ifPCShowIndexTypeTab"></v-spacer>
       <search-input id="search-box-listen" v-model="searchContent" :borderColor="navIconColor"
         :boxShadowColor="hexToRgba(navIconColor, 0.5)" :placeholderColor="navIconColor"
-        :inputStyle="{ 'border-radius': '20px', height: '35px',width: ifPCShowIndexTypeTab ? '260px' : '500px', 'padding-left': '15px' }"></search-input>
+        :inputStyle="{ 'border-radius': '20px', height: '35px',width: ifPCShowIndexTypeTab ? '260px' : '500px', 'padding-left': '15px' }"
+        @submit="search"></search-input>
       <div class="search-btn-container">
         <v-btn id="search-btn" aria-label="搜索" @click="search" icon="mdi-magnify" variant="text" :color="navIconColor" size="35">
           <div class="icon-container">
@@ -332,24 +333,6 @@ export default {
   },
   mounted() {
     this.setLoadState(true);
-    
-    // 搜索框回车事件监听
-    try {
-      let searchBox = document.getElementById('search-box-listen');
-      if (searchBox) {
-        searchBox.addEventListener('keydown', function (event) {
-          if (event.key === 'Enter' || event.keyCode == 13) {
-            event.preventDefault();
-            const searchBtn = document.getElementById('search-btn');
-            if (searchBtn) {
-              searchBtn.click();
-            }
-          }
-        });
-      }
-    } catch (e) {
-      // 忽略错误
-    }
     
     // 监听搜索输入事件总线
     this.searchInputEventBus.on("fill-search-input", (value) => {
