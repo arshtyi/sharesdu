@@ -17,7 +17,8 @@
       <v-spacer v-if="ifPCShowIndexTypeTab"></v-spacer>
       <search-input id="search-box-listen" v-model="searchContent" :borderColor="navIconColor"
         :boxShadowColor="hexToRgba(navIconColor, 0.5)" :placeholderColor="navIconColor"
-        :inputStyle="{ 'border-radius': '20px', height: '35px',width: ifPCShowIndexTypeTab ? '260px' : '500px', 'padding-left': '15px' }"></search-input>
+        :inputStyle="{ 'border-radius': '20px', height: '35px',width: ifPCShowIndexTypeTab ? '260px' : '500px', 'padding-left': '15px' }"
+        @submit="search"></search-input>
       <div class="search-btn-container">
         <v-btn id="search-btn" aria-label="搜索" @click="search" icon="mdi-magnify" variant="text" :color="navIconColor" size="35">
           <div class="icon-container">
@@ -102,7 +103,7 @@
     <div
       id="router-view-container" tabindex="-1"
       :style="{ 'width': '100%', 'max-width': '100%', 'margin-top': routerMarginTop, background: '#ffffff', 'margin-bottom': '10px', 'flex': 1, 'min-height': 0, 'overflow-y': 'auto', 'overflow-x': 'hidden', position: 'relative' }">
-      <router-view id="router-view" :key="`${String($route.name)}:${JSON.stringify($route.params)}`" class="router-view" @alert="alert" @set_loading="setLoading"
+      <router-view id="router-view" :key="routeViewKey" class="router-view" @alert="alert" @set_loading="setLoading"
         @search_type_changed="handleSearchTypeChanged" />
     </div>
   </v-app>
@@ -137,7 +138,7 @@ export default {
     const ifMobile = { value: false };
     
     // 路由状态
-    const { page, ifAvatarState } = useRouteState();
+    const { page, ifAvatarState, routeViewKey } = useRouteState();
     // 用户信息
     const { userId, userName } = useUser();
     
@@ -271,6 +272,7 @@ export default {
       // 路由
       page,
       ifAvatarState,
+      routeViewKey,
       // 用户
       userId,
       userName,
@@ -331,24 +333,6 @@ export default {
   },
   mounted() {
     this.setLoadState(true);
-    
-    // 搜索框回车事件监听
-    try {
-      let searchBox = document.getElementById('search-box-listen');
-      if (searchBox) {
-        searchBox.addEventListener('keydown', function (event) {
-          if (event.key === 'Enter' || event.keyCode == 13) {
-            event.preventDefault();
-            const searchBtn = document.getElementById('search-btn');
-            if (searchBtn) {
-              searchBtn.click();
-            }
-          }
-        });
-      }
-    } catch (e) {
-      // 忽略错误
-    }
     
     // 监听搜索输入事件总线
     this.searchInputEventBus.on("fill-search-input", (value) => {

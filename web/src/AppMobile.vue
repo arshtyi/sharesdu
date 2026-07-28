@@ -27,6 +27,7 @@
         :borderColor="navIconColor" :can-suggestion="ifCanSearchInputSuggestion"
         :boxShadowColor="hexToRgba(navIconColor, 0.5)" :placeholderColor="navIconColor"
         @blur="handleSpecialSearchBlur"
+        @submit="handleSpecialSearchClick"
         :inputStyle="{ 'font-color': navIconColor, 'border-radius': '20px', height: '35px', width: '60vw', 'padding-left': '15px' }"></search-input>
       <!-- 搜索按钮 -->
       <div class="nav-btn-container">
@@ -61,6 +62,7 @@
         :borderColor="navIconColor" :can-suggestion="ifCanSearchInputSuggestion"
         :boxShadowColor="hexToRgba(navIconColor, 0.5)" :placeholderColor="navIconColor"
         @blur="handleDetailPageSearchBlur"
+        @submit="search"
         :inputStyle="{ 'font-color': navIconColor, 'border-radius': '20px', height: '35px', width: '60vw', 'padding-left': '15px' }"></search-input>
       <div v-show="mobileIfShowSearchInput" class="search-btn-container">
         <v-btn id="search-btn" aria-label="搜索" @click="search" icon="mdi-magnify" variant="text" :color="navIconColor" size="35">
@@ -88,7 +90,7 @@
     <div
       id="router-view-container" tabindex="-1"
       :style="{ 'width': '100vw', 'max-width': '100vw', 'margin-top': routerMarginTop, background: '#ffffff', 'margin-bottom': routerMarginBottom, 'flex': 1, 'min-height': 0, 'overflow-y': 'auto', position: 'relative' }">
-      <router-view id="router-view" :key="`${String($route.name)}:${JSON.stringify($route.params)}`" class="router-view" @alert="alert" @set_loading="setLoading"
+      <router-view id="router-view" :key="routeViewKey" class="router-view" @alert="alert" @set_loading="setLoading"
         @search_type_changed="handleSearchTypeChanged" />
     </div>
     <nav v-if="ifShowBottomNav" class="bottom-nav-container" aria-label="主导航">
@@ -174,7 +176,7 @@ export default {
     const showSplash = ref(false);
     
     // 路由状态
-    const { page, ifAvatarState } = useRouteState();
+    const { page, ifAvatarState, routeViewKey } = useRouteState();
     
     // 特殊页面状态（与帖子/文章等一致：显示 返回+首页+搜索+更多 的导航栏）
     const isSpecialPage = computed(() => {
@@ -380,6 +382,7 @@ export default {
       // 路由
       page,
       ifAvatarState,
+      routeViewKey,
       // 特殊页面
       isSpecialPage,
       showSpecialSearchInput,
@@ -455,52 +458,6 @@ export default {
   },
   mounted() {
     this.setLoadState(true);
-    
-    // 搜索框回车事件监听
-    try {
-      let searchBox = document.getElementById('search-box-listen');
-      if (searchBox) {
-        searchBox.addEventListener('keydown', function (event) {
-          if (event.key === 'Enter' || event.keyCode == 13) {
-            event.preventDefault();
-            const searchBtn = document.getElementById('search-btn');
-            if (searchBtn) {
-              searchBtn.click();
-            }
-          }
-        });
-      }
-      
-      // 特殊页面搜索框事件监听（延迟执行，确保 DOM 已渲染）
-      this.$nextTick(() => {
-        let specialSearchBox = document.getElementById('search-box-listen-special');
-        if (specialSearchBox) {
-          const input = specialSearchBox.querySelector('input');
-          if (input) {
-            // 监听回车键事件
-            input.addEventListener('keydown', (event) => {
-              if (event.key === 'Enter' || event.keyCode == 13) {
-                event.preventDefault();
-                // 执行搜索并隐藏搜索框
-                this.search();
-                this.showSpecialSearchInput = false;
-              }
-            });
-            // 监听失去焦点事件
-            input.addEventListener('blur', () => {
-              // 延迟隐藏，以便点击其他按钮时不会立即隐藏
-              setTimeout(() => {
-                if (this.showSpecialSearchInput) {
-                  this.showSpecialSearchInput = false;
-                }
-              }, 200);
-            });
-          }
-        }
-      });
-    } catch (e) {
-      // 忽略错误
-    }
     
     // 监听搜索输入事件总线
     this.searchInputEventBus.on("fill-search-input", (value) => {

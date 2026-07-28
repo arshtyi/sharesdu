@@ -8,6 +8,7 @@
       @focus="onFocus"
       @blur="onBlur"
       @input="onInput"
+      @keydown.enter.prevent="submitSearch"
       :placeholder="placeholderText"
     />
     <div
@@ -30,6 +31,7 @@ import { getLock, setLock } from '@/utils/lock';
 import RecommendCard from './utils/RecommendCard.vue';
 
 export default {
+  emits: ['update:modelValue', 'blur', 'submit'],
   setup() {
     let eventBus = createEventBus("search-suggestion-show");
     return {
@@ -124,6 +126,9 @@ export default {
     },
     onInput() {
       // 在这里监听当前输入的内容
+    },
+    submitSearch() {
+      this.$emit('submit');
     },
     fillSearchInput(text){
       this.inputValue=text;

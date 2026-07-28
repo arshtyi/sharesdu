@@ -1,13 +1,26 @@
 /**
  * 路由状态管理 Composable
  */
-import { ref, watch, nextTick } from 'vue';
+import { ref, watch, nextTick, computed } from 'vue';
 import { useRoute } from 'vue-router';
+
+export function getRouteViewKey(route) {
+  const routeName = String(route.name || '');
+  const baseKey = `${routeName}:${JSON.stringify(route.params || {})}`;
+  const pageName = routeName.replace(/Debug$/, '');
+
+  if (pageName === 'SearchPage') {
+    return `${baseKey}:${route.fullPath}`;
+  }
+
+  return baseKey;
+}
 
 export function useRouteState() {
   const route = useRoute();
   const page = ref('');
   const ifAvatarState = ref(true);
+  const routeViewKey = computed(() => getRouteViewKey(route));
   
   // 监听路由变化 - 使用 fullPath 确保路由参数变化时也能触发
   // fullPath 包含了路径和查询参数，任何路由变化都会触发
@@ -28,6 +41,6 @@ export function useRouteState() {
   return {
     page,
     ifAvatarState,
+    routeViewKey,
   };
 }
-
