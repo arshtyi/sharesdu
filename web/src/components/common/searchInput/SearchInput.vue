@@ -23,18 +23,11 @@
   </div>
 </template>
 <script>
-import { createEventBus } from '@/utils/eventBus';
 import HistoryCard from './utils/HistoryCard.vue';
 import RecommendCard from './utils/RecommendCard.vue';
 
 export default {
   emits: ['update:modelValue', 'blur', 'submit'],
-  setup() {
-    let eventBus = createEventBus("search-suggestion-show");
-    return {
-      eventBus
-    };
-  },
   data() {
     return {
       inputValue: this.modelValue,
