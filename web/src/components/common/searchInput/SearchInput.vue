@@ -111,7 +111,9 @@ export default {
         this.isSuggestionOpen = true;
       }
     },
-    submitSearch() {
+    submitSearch(event) {
+      event.currentTarget.blur();
+      this.isFocused = false;
       this.isSuggestionOpen = false;
       this.$emit('submit');
     },

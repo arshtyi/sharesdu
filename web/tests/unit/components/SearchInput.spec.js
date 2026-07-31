@@ -12,15 +12,6 @@ jest.mock('@/components/common/searchInput/utils/RecommendCard.vue', () => ({
 }));
 
 describe('SearchInput', () => {
-  beforeEach(() => {
-    jest.useFakeTimers();
-  });
-
-  afterEach(() => {
-    jest.clearAllTimers();
-    jest.useRealTimers();
-  });
-
   test('按 Enter 时只提交一次搜索', async () => {
     const wrapper = mount(SearchInput, {
       props: {
@@ -62,8 +53,9 @@ describe('SearchInput', () => {
     wrapper.unmount();
   });
 
-  test('提交搜索后隐藏建议并在继续输入时重新显示', async () => {
+  test('提交搜索后失焦并在重新聚焦时显示建议', async () => {
     const wrapper = mount(SearchInput, {
+      attachTo: document.body,
       props: {
         modelValue: '测试内容',
       },
@@ -77,11 +69,19 @@ describe('SearchInput', () => {
     const input = wrapper.find('input');
     const suggestions = wrapper.find('.suggestion-container');
 
-    await input.trigger('focus');
+    input.element.focus();
+    await wrapper.vm.$nextTick();
+    expect(document.activeElement).toBe(input.element);
+
     await input.trigger('keydown', { key: 'Enter' });
+    expect(document.activeElement).not.toBe(input.element);
     expect(suggestions.isVisible()).toBe(false);
 
     await input.setValue('新的内容');
+    expect(suggestions.isVisible()).toBe(false);
+
+    input.element.focus();
+    await wrapper.vm.$nextTick();
     expect(suggestions.isVisible()).toBe(true);
     wrapper.unmount();
   });
