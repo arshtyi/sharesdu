@@ -112,10 +112,10 @@ export default {
       }
     },
     submitSearch(event) {
+      this.$emit('submit');
       event.currentTarget.blur();
       this.isFocused = false;
       this.isSuggestionOpen = false;
-      this.$emit('submit');
     },
     fillSearchInput(text){
       this.inputValue=text;
