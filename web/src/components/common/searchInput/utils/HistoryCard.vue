@@ -1,5 +1,5 @@
 <template>
-    <div style="display: flex; flex-direction: column" class="total-container" :style="inputStyle" @click="globalClick">
+    <div style="display: flex; flex-direction: column" class="total-container" :style="inputStyle">
         <div style="display: flex;flex-direction: row;align-items: center;margin: 10px;">
             <div style="display: flex;flex-direction: row;align-items: center;width: 150px;">
                 <v-icon icon="mdi-clock-outline" size="20" style="margin-right: 3px;" color="grey"></v-icon>
@@ -20,7 +20,6 @@
     </div>
 </template>
 <script>
-import { globalProperties } from '@/main';
 import { deleteSearchHistory, getSearchHistory } from '../js/utils';
 import { createEventBus, getEventBus } from '@/utils/eventBus';
 import NothingView from '../../NothingView.vue';
@@ -33,14 +32,6 @@ export default {
             default:()=>{
                 return {};
             },
-        }
-    },
-    setup() {
-        const themeColor = globalProperties.$themeColor;
-        let eventBus=getEventBus("search-suggestion-show");
-        return {
-            themeColor,
-            eventBus
         }
     },
     components:{
@@ -76,9 +67,6 @@ export default {
             }else{
                 this.$emit("fill-search-input",item);
             }
-        },
-        globalClick(){
-            this.eventBus.emit('child-click',true);
         }
     }
 }

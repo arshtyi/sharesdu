@@ -31,7 +31,7 @@
         :inputStyle="{ 'font-color': navIconColor, 'border-radius': '20px', height: '35px', width: '60vw', 'padding-left': '15px' }"></search-input>
       <!-- 搜索按钮 -->
       <div class="nav-btn-container">
-        <v-btn aria-label="搜索" @click="handleSpecialSearchClick" icon="mdi-magnify" variant="text" :color="navIconColor" size="35">
+        <v-btn aria-label="搜索" @mousedown.prevent @click="handleSpecialSearchClick" icon="mdi-magnify" variant="text" :color="navIconColor" size="35">
           <div class="icon-container">
             <v-icon type="mdi" icon="mdi-magnify" :color="navIconColor" size="25"></v-icon>
           </div>

@@ -1,5 +1,5 @@
 <template>
-    <div style="display: flex; flex-direction: column" class="total-container" :style="inputStyle" @click="globalClick">
+    <div style="display: flex; flex-direction: column" class="total-container" :style="inputStyle">
         <div style="display: flex;flex-direction: row;align-items: center;margin: 10px;">
             <div style="display: flex;flex-direction: row;align-items: center;width: 150px;">
                 <v-icon icon="mdi-fire" size="20" style="margin-right: 3px;" color="#ff3848"></v-icon>
@@ -23,7 +23,6 @@
     </div>
 </template>
 <script>
-import { globalProperties } from '@/main';
 import { reactive } from 'vue';
 import { createEventBus, getEventBus } from '@/utils/eventBus';
 import { getFireColor } from '../js/utils';
@@ -39,14 +38,10 @@ export default {
         }
     },
     setup() {
-        const themeColor = globalProperties.$themeColor;
         let items = reactive([
         ]);
-        let eventBus=getEventBus("search-suggestion-show");
         return {
-            themeColor,
             items,
-            eventBus
         }
     },
     components:{
@@ -57,9 +52,6 @@ export default {
         }
     },
     methods: {
-        globalClick(){
-            this.eventBus.emit('child-click',true);
-        },
         getFireColor(hotScore){
             return getFireColor(hotScore);
         },

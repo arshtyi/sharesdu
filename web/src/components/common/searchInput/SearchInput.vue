@@ -12,11 +12,9 @@
       :placeholder="placeholderText"
     />
     <div
-      tabindex="0"
-      v-show="(isFocused || ifChildClicked)&&canSuggestion"
+      v-show="shouldShowSuggestions"
       class="suggestion-container"
-      @focus="onFocus"
-      @blur="onBlur"
+      @mousedown.prevent
     >
       <recommend-card @fill-search-input="fillSearchInput" v-show="showHot"></recommend-card>
       <div style="height: 80%; background-color: grey; width: 10px;"></div>
@@ -25,27 +23,18 @@
   </div>
 </template>
 <script>
-import { createEventBus } from '@/utils/eventBus';
 import HistoryCard from './utils/HistoryCard.vue';
-import { getLock, setLock } from '@/utils/lock';
 import RecommendCard from './utils/RecommendCard.vue';
 
 export default {
   emits: ['update:modelValue', 'blur', 'submit'],
-  setup() {
-    let eventBus = createEventBus("search-suggestion-show");
-    return {
-      eventBus
-    };
-  },
   data() {
     return {
       inputValue: this.modelValue,
       isFocused: false, // 输入框是否获得焦点
+      isSuggestionOpen: false, // 是否显示搜索建议
       showHistory: true, // 是否显示历史记录
       showHot: true, // 是否显示热榜
-      ifChildClicked: false,
-      childClickIntervalId: null,
     };
   },
   props: {
@@ -95,6 +84,9 @@ export default {
     RecommendCard,
   },
   computed: {
+    shouldShowSuggestions() {
+      return this.canSuggestion && this.isFocused && this.isSuggestionOpen;
+    },
     // 动态生成 input 框的样式
     inputBoxStyle() {
       return Object.assign({},{
@@ -106,40 +98,28 @@ export default {
   methods: {
     onFocus() {
       this.isFocused = true;
+      this.isSuggestionOpen = true;
     },
-    async onBlur() {
-      setLock("search-suggestion-click-show", true);
-      let childState = await this.eventBus.waitFor('child-click', 200);
-      if (childState === true) {
-        this.ifChildClicked = true;
-        clearInterval(this.childClickIntervalId);
-        this.childClickIntervalId = setInterval(() => {
-          if (!getLock('search-suggestion-click-show')) {
-            this.ifChildClicked = false;
-          }
-        }, 3000)
-      }
-      setLock("search-suggestion-click-show", false);
+    onBlur() {
       //提交事件：搜索输入框失去焦点
       this.$emit('blur');
       this.isFocused = false;
+      this.isSuggestionOpen = false;
     },
     onInput() {
-      // 在这里监听当前输入的内容
+      if (this.isFocused) {
+        this.isSuggestionOpen = true;
+      }
     },
-    submitSearch() {
+    submitSearch(event) {
       this.$emit('submit');
+      event.currentTarget.blur();
+      this.isFocused = false;
+      this.isSuggestionOpen = false;
     },
     fillSearchInput(text){
       this.inputValue=text;
     }
-  },
-  mounted() {
-    this.childClickIntervalId = setInterval(() => {
-      if (!getLock('search-suggestion-click-show')) {
-        this.ifChildClicked = false;
-      }
-    }, 3000)
   }
 };
 </script>
