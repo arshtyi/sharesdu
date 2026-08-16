@@ -118,7 +118,7 @@ defineProps({
   font-weight: 700;
   color: #1a202c;
   margin: 0 0 40px;
-  background: linear-gradient(135deg, var(--theme-color, #667eea) 0%, #764ba2 100%);
+  background-image: linear-gradient(135deg, var(--theme-color, #667eea) 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -264,4 +264,3 @@ defineProps({
   }
 }
 </style>
-

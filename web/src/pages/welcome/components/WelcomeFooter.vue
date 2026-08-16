@@ -114,7 +114,7 @@ const currentYear = computed(() => new Date().getFullYear());
 .brand-name {
   font-size: 1.8rem;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--welcome-theme-gradient-start, #667eea) 0%, var(--welcome-theme-gradient-end, #764ba2) 100%);
+  background-image: linear-gradient(135deg, var(--welcome-theme-gradient-start, #667eea) 0%, var(--welcome-theme-gradient-end, #764ba2) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
