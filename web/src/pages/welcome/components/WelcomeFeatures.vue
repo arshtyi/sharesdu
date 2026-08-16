@@ -111,7 +111,7 @@ defineProps({
   text-align: center;
   margin-bottom: 24px;
   letter-spacing: -0.3px;
-  background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+  background-image: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

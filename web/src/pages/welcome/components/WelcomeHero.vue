@@ -70,7 +70,7 @@
 .hero-title {
   font-size: clamp(2.75rem, 6vw, 4.5rem) !important;
   font-weight: 900 !important;
-  background: linear-gradient(135deg, var(--welcome-theme-gradient-start, #667eea) 0%, var(--welcome-theme-color, #764ba2) 50%, var(--welcome-theme-gradient-end, #f093fb) 100%);
+  background-image: linear-gradient(135deg, var(--welcome-theme-gradient-start, #667eea) 0%, var(--welcome-theme-color, #764ba2) 50%, var(--welcome-theme-gradient-end, #f093fb) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -141,21 +141,17 @@
 .hero-register-btn::before {
   content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
+  inset: 0;
+  border-radius: inherit;
   background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
+  opacity: 0;
+  transition: opacity 0.3s ease;
   z-index: 1;
   pointer-events: none;
 }
 
 .hero-register-btn:hover::before {
-  width: 300px;
-  height: 300px;
+  opacity: 1;
 }
 
 .hero-register-btn:hover {

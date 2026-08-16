@@ -95,21 +95,17 @@ defineProps({
 .cta-btn::before {
   content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
+  inset: 0;
+  border-radius: inherit;
   background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
+  opacity: 0;
+  transition: opacity 0.3s ease;
   z-index: 1;
   pointer-events: none;
 }
 
 .cta-btn:hover::before {
-  width: 300px;
-  height: 300px;
+  opacity: 1;
 }
 
 .cta-btn:hover {
@@ -200,4 +196,3 @@ defineProps({
   }
 }
 </style>
-
